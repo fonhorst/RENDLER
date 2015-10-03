@@ -15,6 +15,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import logging
 
 import sys
 import threading
@@ -31,22 +32,24 @@ except ImportError:
 
 
 import results
+import utils
+
 
 
 class TestExecutor(Executor):
 
     def registered(self, driver, executorInfo, frameworkInfo, slaveInfo):
-      print "TestExecutor registered on hostname: " + str(slaveInfo.hostname)
+      logger.info("TestExecutor registered on hostname: " + str(slaveInfo.hostname))
 
     def reregistered(self, driver, slaveInfo):
-      print "TestExecutor reregistered"
+      logger.info("TestExecutor reregistered")
 
     def disconnected(self, driver):
-      print "TestExecutor disconnected"
+      logger.info("TestExecutor disconnected")
 
     def launchTask(self, driver, task):
         def run_task():
-            print "Running test task %s" % task.task_id.value
+            logger.info("Running test task %s" % task.task_id.value)
             update = mesos_pb2.TaskStatus()
             update.task_id.value = task.task_id.value
             update.state = mesos_pb2.TASK_RUNNING
@@ -61,12 +64,12 @@ class TestExecutor(Executor):
 
             time.sleep(100)
 
-            print "Sending status update..."
+            logger.info("Sending status update...")
             update = mesos_pb2.TaskStatus()
             update.task_id.value = task.task_id.value
             update.state = mesos_pb2.TASK_FINISHED
             driver.sendStatusUpdate(update)
-            print "Sent status update"
+            logger.info("Sent status update")
             return
 
         thread = threading.Thread(target=run_task)
@@ -76,16 +79,25 @@ class TestExecutor(Executor):
         self.shutdown(self, driver)
 
     def frameworkMessage(self, driver, message):
-      print "Ignoring framework message: %s" % message
+      logger("Ignoring framework message: %s" % message)
 
     def shutdown(self, driver):
-      print "Shutting down"
+      logger.info("Shutting down")
       sys.exit(0)
 
     def error(self, error, message):
       pass
 
 if __name__ == "__main__":
-    print "Starting Launching Executor (LE)"
+
+    if len(sys.argv) > 1:
+        time_label = sys.argv[1]
+    else:
+        time_label = utils.get_time_label()
+
+    utils.configureLogger(time_label = time_label, is_executor=True)
+    logger = logging.getLogger(utils.DEFAULT_LOGGER_NAME)
+
+    logger.info("Starting Launching Executor (LE)")
     driver = MesosExecutorDriver(TestExecutor())
     sys.exit(0 if driver.run() == mesos_pb2.DRIVER_STOPPED else 1)

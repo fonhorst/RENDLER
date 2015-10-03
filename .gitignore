@@ -3,6 +3,7 @@
 **.png
 **.pdf
 **.dot
+**.log
 go/src/code.google.com/
 go/pkg/
 go/bin/

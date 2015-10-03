@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import json
+import logging
 import os
 import signal
 import sys
@@ -16,6 +17,7 @@ except ImportError:
     import mesos_pb2
 
 import task_state
+import utils
 
 TASK_CPUS = 0.1
 TASK_MEM = 32
@@ -25,23 +27,26 @@ TASK_ATTEMPTS = 5  # how many times a task is attempted
 
 TEST_TASK_SUFFIX = "-test"
 
+
+
 # See the Mesos Framework Development Guide:
 # http://mesos.apache.org/documentation/latest/app-framework-development-guide
 
 class TestScheduler(Scheduler):
     def __init__(self, testExecutor):
-        print "RENDLER"
-        print "======="
+        logger.info("RENDLER")
+        logger.info("=======")
 
         self.testExecutor  = testExecutor
+
+        ## running info
         self.shuttingDown = False
-
         self.tasksCreated = 0
-
         self.viewed_slaves = set()
+        self._driver = None
 
     def registered(self, driver, frameworkId, masterInfo):
-        print "Registered with framework ID [%s]" % frameworkId.value
+        logger.info("Registered with framework ID [%s]" % frameworkId.value)
 
     def makeTaskPrototype(self, offer):
         task = mesos_pb2.TaskInfo()
@@ -70,31 +75,39 @@ class TestScheduler(Scheduler):
     def resourceOffers(self, driver, offers):
 
         for offer in offers:
-            print "Got resource offer [%s]" % offer.id.value
+            logger.info("Got resource offer [%s]" % offer.id.value)
 
             if self.shuttingDown:
-                print "Shutting down: declining offer on [%s]" % offer.hostname
+                logger.info("Shutting down: declining offer on [%s]" % offer.hostname)
                 driver.declineOffer(offer.id)
                 continue
 
             if offer.slave_id.value not in self.viewed_slaves:
-                print "Accepting offer on [%s]" % offer.hostname
+                logger.info("Accepting offer on [%s]" % offer.hostname)
                 self.viewed_slaves.add(offer.slave_id.value)
                 task = self.makeTestTask("test_for_" + str(offer.hostname), offer)
                 driver.launchTasks(offer.id, [task])
             else:
-                print "Declining offer on [%s]" % offer.hostname
+                logger.info("Declining offer on [%s]" % offer.hostname)
                 driver.declineOffer(offer.id)
             pass
 
     def statusUpdate(self, driver, update):
         stateName = task_state.nameFor[update.state]
-        print "Task [%s] is in state [%s]" % (update.task_id.value, stateName)
+        logger.info("Task [%s] is in state [%s]" % (update.task_id.value, stateName))
 
     def frameworkMessage(self, driver, executorId, slaveId, message):
         o = json.loads(message)
-        print "Message: " + str(slaveId) + " " + str(executorId) + " " + str(o)
+        logger.info("Message: " + str(slaveId) + " " + str(executorId) + " " + str(o))
 
+
+    def askExecutor_ExecuteWFTask(self, executor_id, task_as_str):
+        raise NotImplementedError()
+
+    def askExecutor_StartStageIn(self, executor_id, task_as_str):
+        raise NotImplementedError()
+
+    pass
 
 def hard_shutdown():  
     driver.stop()
@@ -107,6 +120,10 @@ def graceful_shutdown(signal, frame):
 #
 if __name__ == "__main__":
 
+    time_label = utils.get_time_label()
+    utils.configureLogger(time_label=time_label)
+    logger = logging.getLogger(utils.DEFAULT_LOGGER_NAME)
+
     if len(sys.argv) < 2:
         print "Usage: %s mesosMasterUrl" % sys.argv[0]
         sys.exit(1)
@@ -117,13 +134,14 @@ if __name__ == "__main__":
     suffixURI = "python-mhgh"
     uris = [ "test_executor.py",
              "results.py",
-             "task_state.py" ]
+             "task_state.py",
+             "utils.py"]
     uris = [os.path.join(baseURI, suffixURI, uri) for uri in uris]
 
 
     testExecutor = mesos_pb2.ExecutorInfo()
     testExecutor.executor_id.value = "test-executor"
-    testExecutor.command.value = "python test_executor.py"
+    testExecutor.command.value = "python test_executor.py " + str(time_label)
 
     for uri in uris:
         uri_proto = testExecutor.command.uris.add()
@@ -154,5 +172,5 @@ if __name__ == "__main__":
     while framework_thread.is_alive():
         time.sleep(1)
 
-    print "Goodbye!"
+    logging.info("Goodbye!")
     sys.exit(0)
