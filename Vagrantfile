@@ -6,6 +6,11 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
+  if Vagrant.has_plugin?("vagrant-proxyconf")
+    config.proxy.http     = "http://proxy.ifmo.ru:3128"
+    config.proxy.no_proxy = "localhost,127.0.0.1,127.0.1.1,10.141.141.10,192.168.13.132,192.168.13.133,"
+  end
+
   config.vm.box = "mesos-demo"
   # config.vm.box_url = "http://downloads.mesosphere.io/demo/mesos-demo.box"
 
