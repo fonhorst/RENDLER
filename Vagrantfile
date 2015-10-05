@@ -17,6 +17,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
   config.vm.network :private_network, ip: "10.141.141.10"
+  config.vm.network :public_network, ip: "192.168.92.5"
 
   # Enable agent forwarding.
   config.ssh.forward_agent = true
@@ -34,5 +35,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vb.customize ["modifyvm", :id, "--cpus", "2"]
     vb.customize ["modifyvm", :id, "--memory", "2048"]
   end
+  
+   config.vm.provision "shell" do |s|
+        dns_server = "if ! grep -q \'nameserver 192.168.13.132\' /etc/resolvconf/resolv.conf.d/head; then echo 'nameserver 192.168.13.132'|tee --append /etc/resolvconf/resolv.conf.d/head; fi;resolvconf -u;"
+		default_iface = "ip route change to default dev eth1;"
+		hosts_file = "echo '127.0.0.1 localhost'|tee /etc/hosts;echo '192.168.92.5 mesos.vm mesos'|tee --append /etc/hosts;"
+		#hosts_file = "echo '127.0.0.1 localhost'|tee /etc/hosts;echo '127.0.1.1 mesos.vm mesos'|tee --append /etc/hosts;"
+	    s.inline = "#{hosts_file}#{dns_server}#{default_iface}"
+        s.privileged = true
+   end
+  
 
 end

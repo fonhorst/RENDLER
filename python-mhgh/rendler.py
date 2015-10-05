@@ -130,7 +130,8 @@ if __name__ == "__main__":
 
     mesosMasterUrl = sys.argv[1]
 
-    baseURI = "/home/vagrant/hostfiles"
+    # baseURI = "/home/vagrant/hostfiles"
+    baseURI = "/home/vagrant/devfiles"
     suffixURI = "python-mhgh"
     uris = [ "test_executor.py",
              "results.py",
@@ -153,6 +154,7 @@ if __name__ == "__main__":
     framework = mesos_pb2.FrameworkInfo()
     framework.user = "" # Have Mesos fill in the current user.
     framework.name = "TestScheduler"
+    framework.hostname = "192.168.92.5"
 
 
     rendler = TestScheduler(testExecutor)
