@@ -51,47 +51,17 @@ class TestExecutor(Executor):
 
     def launchTask(self, driver, task):
         def run_task():
-            logger.info("Running test task %s" % task.task_id.value)
-            update = mesos_pb2.TaskStatus()
-            update.task_id.value = task.task_id.value
-            update.state = mesos_pb2.TASK_RUNNING
-            driver.sendStatusUpdate(update)
-
-            #text = task.data
-            #res = results.TestResult("Hello from task: " + str(task.task_id.value), text=text)
-            #message = repr(res)
-            #driver.sendFrameworkMessage(message)
-
             time.sleep(10)
-            message = {"type": messages.EMT_READYTOWORK}
-            o = json.dumps(message)
-            driver.sendFrameworkMessage(o)
-
-            time.sleep(100)
-
-            logger.info("Sending status update...")
-            update = mesos_pb2.TaskStatus()
-            update.task_id.value = task.task_id.value
-            update.state = mesos_pb2.TASK_FINISHED
-            driver.sendStatusUpdate(update)
-            logger.info("Sent status update")
-            return
-
 
         thread = threading.Thread(target=run_task)
         thread.start()
-        pass
+        logger.info("task started")
 
     def killTask(self, driver, taskId):
-        self.shutdown(driver)
+        self.shutdown(self, driver)
 
     def frameworkMessage(self, driver, message):
-        #logger("Ignoring framework message: %s" % message)
-        logger.info("Message received: %s" % message)
-        o = json.loads(message)
-        if o["type"] == messages.SMT_TERMINATEEXECUTOR:
-            logger.info("Termination signal received...")
-            self.shutdown(driver)
+      logger("Ignoring framework message: %s" % message)
 
     def shutdown(self, driver):
       logger.info("Shutting down")
@@ -112,6 +82,4 @@ if __name__ == "__main__":
 
     logger.info("Starting Launching Executor (LE)")
     driver = MesosExecutorDriver(TestExecutor())
-    exit_code = 0 if driver.run() == mesos_pb2.DRIVER_STOPPED else 1
-    logger.info("Executor is finished")
-    sys.exit(exit_code)
+    sys.exit(0 if driver.run() == mesos_pb2.DRIVER_STOPPED else 1)

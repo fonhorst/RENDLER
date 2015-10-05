@@ -18,6 +18,7 @@ except ImportError:
 
 import task_state
 import utils
+import messages
 
 TASK_CPUS = 0.1
 TASK_MEM = 32
@@ -28,7 +29,33 @@ TASK_ATTEMPTS = 5  # how many times a task is attempted
 TEST_TASK_SUFFIX = "-test"
 
 
+class ResourceInfo:
+    def __init__(self, executor_id, slave_id):
+        self.executor_id = executor_id
+        self.slave_id = slave_id
+    """
+    :driver MesosSchedulerDriver
+    """
+    def askExecutor_Terminate(self, driver):
 
+        eId = mesos_pb2.ExecutorID()
+        eId.value = self.executor_id
+
+        sId = mesos_pb2.SlaveID()
+        sId.value = self.slave_id
+
+        message = {"type": messages.SMT_TERMINATEEXECUTOR}
+        o = json.dumps(message)
+        logger.info("Tryna to kill eID: %s sID: %s" % (eId, sId))
+        d = driver.sendFrameworkMessage(eId, sId, o)
+        logger.info("-- %s" % (d))
+        pass
+
+    def askExecutor_ExecuteWFTask(self, driver, task_as_str):
+        raise NotImplementedError()
+
+    def askExecutor_StartStageIn(self, driver, task_as_str):
+        raise NotImplementedError()
 # See the Mesos Framework Development Guide:
 # http://mesos.apache.org/documentation/latest/app-framework-development-guide
 
@@ -39,11 +66,19 @@ class TestScheduler(Scheduler):
 
         self.testExecutor  = testExecutor
 
+        self.required_resources_number = 2
+        # task_id => ResourceInfo map
+        self.active_resources = {}
+
         ## running info
         self.shuttingDown = False
         self.tasksCreated = 0
-        self.viewed_slaves = set()
+        #self.viewed_slaves = set()
         self._driver = None
+
+    def setDriver(self, driver):
+        self._driver = driver
+        pass
 
     def registered(self, driver, frameworkId, masterInfo):
         logger.info("Registered with framework ID [%s]" % frameworkId.value)
@@ -69,6 +104,8 @@ class TestScheduler(Scheduler):
         task.name = "test task %s" % task.task_id.value
         task.task_id.value += TEST_TASK_SUFFIX
         task.executor.MergeFrom(self.testExecutor)
+        task.executor.executor_id.value = "%s_%s_%s" % (self.testExecutor.executor_id.value,
+                                                        offer.hostname, self.tasksCreated)
         task.data = str(text)
         return task
 
@@ -82,15 +119,13 @@ class TestScheduler(Scheduler):
                 driver.declineOffer(offer.id)
                 continue
 
-            if offer.slave_id.value not in self.viewed_slaves:
-                logger.info("Accepting offer on [%s]" % offer.hostname)
-                self.viewed_slaves.add(offer.slave_id.value)
-                task = self.makeTestTask("test_for_" + str(offer.hostname), offer)
-                driver.launchTasks(offer.id, [task])
-            else:
-                logger.info("Declining offer on [%s]" % offer.hostname)
-                driver.declineOffer(offer.id)
-            pass
+            self._try_to_form_pool(offer, driver)
+
+            if self._is_pool_formed():
+                logger.info("Pool is full. Terminate it")
+                for task_id, rinfo in self.active_resources.items():
+                    rinfo.askExecutor_Terminate(driver)
+                #self._terminate_pool()
 
     def statusUpdate(self, driver, update):
         stateName = task_state.nameFor[update.state]
@@ -100,16 +135,43 @@ class TestScheduler(Scheduler):
         o = json.loads(message)
         logger.info("Message: " + str(slaveId) + " " + str(executorId) + " " + str(o))
 
+        if o["type"] == messages.EMT_READYTOWORK:
+           # confirm resource as active
+           rinfo = ResourceInfo(executorId.value, slaveId.value)
+           self.active_resources[executorId.value] = rinfo
 
-    def askExecutor_ExecuteWFTask(self, executor_id, task_as_str):
-        raise NotImplementedError()
+    """
+    This function tries to form resource pool.
+    if resources are enough it returns true
+    """
+    def _try_to_form_pool(self, offer, driver):
+        if len(self.active_resources) < self.required_resources_number:
+            logger.info("Accepting offer on [%s]" % offer.hostname)
+            logger.info("Now we have [%s/%s]" % (len(self.active_resources), self.required_resources_number))
+            task = self.makeTestTask("test_for_" + str(offer.hostname), offer)
+            driver.launchTasks(offer.id, [task])
+            # add the resource to pool
+            self.active_resources[task.executor.executor_id.value] = None
+        else:
+            logger.info("Declining offer on [%s]" % offer.hostname)
+            logger.info("We already have [%s/%s]" % (len(self.active_resources), self.required_resources_number))
+            driver.declineOffer(offer.id)
+            pass
 
-    def askExecutor_StartStageIn(self, executor_id, task_as_str):
-        raise NotImplementedError()
+    def _is_pool_formed(self):
+        if len(self.active_resources) < self.required_resources_number:
+            return False
+        return all((rinfo is not None for task_id, rinfo in self.active_resources.items()))
+
+    def _terminate_pool(self):
+        for task_id, rinfo in self.active_resources.items():
+            rinfo.askExecutor_Terminate(self._driver)
+        pass
 
     pass
 
-def hard_shutdown():  
+
+def hard_shutdown():
     driver.stop()
 
 def graceful_shutdown(signal, frame):
@@ -135,6 +197,7 @@ if __name__ == "__main__":
     suffixURI = "python-mhgh"
     uris = [ "test_executor.py",
              "results.py",
+             "messages.py",
              "task_state.py",
              "utils.py"]
     uris = [os.path.join(baseURI, suffixURI, uri) for uri in uris]
@@ -160,6 +223,7 @@ if __name__ == "__main__":
     rendler = TestScheduler(testExecutor)
 
     driver = MesosSchedulerDriver(rendler, framework, mesosMasterUrl)
+    rendler.setDriver(driver)
 
     # driver.run() blocks; we run it in a separate thread
     def run_driver_async():
