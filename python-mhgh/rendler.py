@@ -74,6 +74,7 @@ class ResourceInfo:
         # here should some kind real flops value
         # resource should be set later
         node = Node(self.name, None, [SoftItem.ANY_SOFT], flops=1)
+        node.state = Node.Down if self.state == ResourceInfo.DEAD else Node.Unknown
         return node
 
     """
@@ -168,7 +169,8 @@ class TestScheduler(Scheduler):
                     if execution_process_started:
                         # special service function
                         # whose goal is to simulate a situation of lost nodes
-                        self.check_for_nodes_fault()
+                        #self.check_for_nodes_fault()
+                        pass
 
                     pass
                 elif self._is_pool_formed():
@@ -193,7 +195,7 @@ class TestScheduler(Scheduler):
                     logger.info("Workload completed. Shutting down...")
                     logger.info("Start execution time: %s" % (start))
                     logger.info("End execution time: %s" % (end))
-                    logger.info("Execution time: %s" % ((end - start).seconds))
+                    logger.info("Execution time: %s" % ((end - start)))
 
                     hard_shutdown()
 
@@ -430,6 +432,32 @@ class TestScheduler(Scheduler):
             # 5) repeat 3 - 5 until either succesful is found or there is no option any more
             # 6) if solution has been found apply, other raise exception about deadline violation
 
+            # return
+            # raise NotImplementedError
+
+            # update rm and estimator
+            self.construct_scheduling_tools()
+
+            # remove all planned tasks from the current schedule
+            # and marks failed tasks
+            new_mapping = {}
+            for (node, items) in self.current_schedule.mapping.items():
+                new_node = self.rm.get_node_by_name(node.name)
+                new_mapping[new_node] = []
+                for item in items:
+                    if node.state == Node.Down and item.state == ScheduleItem.EXECUTING:
+                        ## TODO: marks tasks as failed
+                        item.state = ScheduleItem.FAILED
+                    if item.state != ScheduleItem.UNSTARTED:
+                        new_mapping[new_node].append(item)
+            clean_schedule = Schedule(new_mapping)
+
+            # resume execution process
+            heft_schedule = run_heft(self.workflow, self.rm, self.estimator, fixed_schedule=clean_schedule)
+            Utility.Utility.validate_static_schedule(self.workflow, heft_schedule)
+            logger.info("New HEFT makespan: " + str(Utility.Utility.makespan(heft_schedule)))
+            self.current_schedule = heft_schedule
+            self.run_next_tasks(self._driver)
 
         pass
 

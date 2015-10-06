@@ -331,7 +331,7 @@ class Schedule:
         return str(self.mapping)
 
     def __repr__(self):
-        return str(self.mappning)
+        return str(self.mapping)
 
 ##interface Executor
 #class Executor:

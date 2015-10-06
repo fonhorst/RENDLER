@@ -70,14 +70,14 @@ class DynamicHeft(StaticHeftPlanner):
             if e.job == job and (e.state == ScheduleItem.FINISHED or e.state == ScheduleItem.EXECUTING or e.state == ScheduleItem.UNSTARTED):
                 return e.end_time
 
-def run_heft(workflow, resource_manager, estimator):
+def run_heft(workflow, resource_manager, estimator, fixed_schedule=None):
     """
     It simply runs heft with empty initial schedule
     and returns complete schedule
     """
     heft = DynamicHeft(workflow, resource_manager, estimator)
     nodes = resource_manager.get_nodes()
-    init_schedule = Schedule({node: [] for node in nodes})
+    init_schedule = Schedule({node: [] for node in nodes}) if fixed_schedule is None else fixed_schedule
     return heft.run(init_schedule)
 
 
