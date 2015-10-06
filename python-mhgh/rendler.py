@@ -36,6 +36,8 @@ TASK_ATTEMPTS = 5  # how many times a task is attempted
 
 TEST_TASK_SUFFIX = "-test"
 
+MB_100_CHANNEL = 13*1024*1024
+
 from environment.BaseElements import Node, SoftItem
 
 class ResourceInfo:
@@ -319,9 +321,8 @@ class TestScheduler(Scheduler):
         rm = ExperimentResourceManager(resources)
         estimator = TransferCalcExperimentEstimator(ideal_flops=1,
                                                     reliability=1.0,
-                                                    transfer_nodes=1,
+                                                    transfer_nodes=MB_100_CHANNEL,
                                                     transfer_blades=100)
-
         self.rm = rm
         self.estimator = estimator
 
