@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- MEME-MAST bioinformatics workflow (Figure 9 in Ramakrishnan and Gannon) -->
+<adag xmlns="http://pegasus.isi.edu/schema/DAX" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pegasus.isi.edu/schema/DAX http://pegasus.isi.edu/schema/dax-2.1.xsd" name="f" jobCount="21" fileCount="0" childCount="15">
+	<job id="ID00010" namespace="f" name="bsm" runtime="2580" cores="1">
+		<uses file="0MaskedHirlam.zip" link="input" size="26214400"/>
+		<uses file="Measurements.zip" link="input" size="2048"/>
+		<uses file="0ccd.zip" link="output" size="26214400"/>
+	</job>
+	<job id="ID00012" namespace="f" name="bsm" runtime="2580" cores="1">
+		<uses file="Measurements.zip" link="input" size="2048"/>
+		<uses file="1MaskedHirlam.zip" link="input" size="26214400"/>
+		<uses file="1ccd.zip" link="output" size="26214400"/>
+	</job>
+	<job id="ID00019" namespace="f" name="ccdanalyzer" runtime="450" cores="1">
+		<uses file="1ccd.zip" link="input" size="26214400"/>
+		<uses file="pointsToExtract.in.txt" link="input" size="1024"/>
+		<uses file="4ccd.zip" link="input" size="26214400"/>
+		<uses file="0ccd.zip" link="input" size="26214400"/>
+		<uses file="3ccd.zip" link="input" size="26214400"/>
+		<uses file="2ccd.zip" link="input" size="26214400"/>
+		<uses file="ccdanalyzerout.out.txt" link="output" size="1024"/>
+	</job>
+	<job id="ID00018" namespace="f" name="bsm" runtime="2580" cores="1">
+		<uses file="4MaskedHirlam.zip" link="input" size="26214400"/>
+		<uses file="Measurements.zip" link="input" size="2048"/>
+		<uses file="4ccd.zip" link="output" size="26214400"/>
+	</job>
+	<job id="ID00013" namespace="f" name="swan" runtime="2580" cores="1">
+		<uses file="2MaskedHirlam.zip" link="input" size="26214400"/>
+		<uses file="2MaskedHirlam.zip" link="output" size="26214400"/>
+	</job>
+	<job id="ID00001" namespace="f" name="hirlamprovider" runtime="300" cores="1">
+		<uses file="hirlam.zip" link="output" size="26214400"/>
+	</job>
+	<job id="ID00016" namespace="f" name="bsm" runtime="2580" cores="1">
+		<uses file="Measurements.zip" link="input" size="2048"/>
+		<uses file="3MaskedHirlam.zip" link="input" size="26214400"/>
+		<uses file="3ccd.zip" link="output" size="26214400"/>
+	</job>
+	<job id="ID00004" namespace="f" name="projectprovider" runtime="300" cores="1">
+		<uses file="Projects.zip" link="output" size="9437184"/>
+	</job>
+	<job id="ID00006" namespace="f" name="bsmdatacollector" runtime="300" cores="1">
+		<uses file="bsh.zip" link="input" size="22528"/>
+		<uses file="hirlam.zip" link="input" size="26214400"/>
+		<uses file="Projects.zip" link="input" size="9437184"/>
+		<uses file="Measurements.zip" link="input" size="2048"/>
+		<uses file="20070109-1200-00.txt" link="input" size="194560"/>
+		<uses file="controlPoints.in.txt" link="output" size="1024"/>
+		<uses file="bsh.zip" link="output" size="22528"/>
+		<uses file="pointsToExtract.in.txt" link="output" size="1024"/>
+		<uses file="Measurements.zip" link="output" size="2048"/>
+		<uses file="20070109-1200-00.txt" link="output" size="194560"/>
+		<uses file="hirlam.zip" link="output" size="26214400"/>
+		<uses file="Projects.zip" link="output" size="9437184"/>
+	</job>
+	<job id="ID00009" namespace="f" name="swan" runtime="2580" cores="1">
+		<uses file="0MaskedHirlam.zip" link="input" size="26214400"/>
+		<uses file="0MaskedHirlam.zip" link="output" size="26214400"/>
+	</job>
+	<job id="ID00020" namespace="f" name="planmaker" runtime="300" cores="1">
+		<uses file="Measurements.zip" link="input" size="2048"/>
+		<uses file="Projects.zip" link="input" size="9437184"/>
+		<uses file="ccdanalyzerout.out.txt" link="input" size="1024"/>
+		<uses file="planmakerout.out.txt" link="output" size="1024"/>
+	</job>
+	<job id="ID00003" namespace="f" name="lvlprovider" runtime="300" cores="1">
+		<uses file="Measurements.zip" link="output" size="2048"/>
+	</job>
+	<job id="ID00014" namespace="f" name="bsm" runtime="2580" cores="1">
+		<uses file="2MaskedHirlam.zip" link="input" size="26214400"/>
+		<uses file="Measurements.zip" link="input" size="2048"/>
+		<uses file="2ccd.zip" link="output" size="26214400"/>
+	</job>
+	<job id="ID00021" namespace="f" name="planvisualizer" runtime="300" cores="1">
+		<uses file="planmakerout.out.txt" link="input" size="1024"/>
+		<uses file="Measurements.zip" link="input" size="2048"/>
+		<uses file="Projects.zip" link="input" size="9437184"/>
+	</job>
+	<job id="ID00015" namespace="f" name="swan" runtime="2580" cores="1">
+		<uses file="3MaskedHirlam.zip" link="input" size="26214400"/>
+		<uses file="3MaskedHirlam.zip" link="output" size="26214400"/>
+	</job>
+	<job id="ID00005" namespace="f" name="asmfieldprovider" runtime="300" cores="1">
+		<uses file="20070109-1200-00.txt" link="output" size="194560"/>
+	</job>
+	<job id="ID00017" namespace="f" name="swan" runtime="2580" cores="1">
+		<uses file="4MaskedHirlam.zip" link="input" size="26214400"/>
+		<uses file="4MaskedHirlam.zip" link="output" size="26214400"/>
+	</job>
+	<job id="ID00011" namespace="f" name="swan" runtime="2580" cores="1">
+		<uses file="1MaskedHirlam.zip" link="input" size="26214400"/>
+		<uses file="1MaskedHirlam.zip" link="output" size="26214400"/>
+	</job>
+	<job id="ID00002" namespace="f" name="bshprovider" runtime="300" cores="1">
+		<uses file="bsh.zip" link="output" size="22528"/>
+	</job>
+	<job id="ID00007" namespace="f" name="hmgenerator" runtime="300" cores="1">
+		<uses file="2mask.out.txt" link="output" size="194560"/>
+		<uses file="4mask.out.txt" link="output" size="194560"/>
+		<uses file="3mask.out.txt" link="output" size="194560"/>
+		<uses file="1mask.out.txt" link="output" size="194560"/>
+		<uses file="0mask.out.txt" link="output" size="194560"/>
+	</job>
+	<job id="ID00008" namespace="f" name="hmimposer" runtime="300" cores="1">
+		<uses file="4mask.out.txt" link="input" size="194560"/>
+		<uses file="3mask.out.txt" link="input" size="194560"/>
+		<uses file="2mask.out.txt" link="input" size="194560"/>
+		<uses file="1mask.out.txt" link="input" size="194560"/>
+		<uses file="0mask.out.txt" link="input" size="194560"/>
+		<uses file="hirlam.zip" link="input" size="26214400"/>
+		<uses file="1MaskedHirlam.zip" link="output" size="26214400"/>
+		<uses file="0MaskedHirlam.zip" link="output" size="26214400"/>
+		<uses file="4MaskedHirlam.zip" link="output" size="26214400"/>
+		<uses file="2MaskedHirlam.zip" link="output" size="26214400"/>
+		<uses file="3MaskedHirlam.zip" link="output" size="26214400"/>
+	</job>
+	<child ref="ID00010">
+		<parent ref="ID00006"/>
+		<parent ref="ID00009"/>
+	</child>
+	<child ref="ID00012">
+		<parent ref="ID00011"/>
+		<parent ref="ID00006"/>
+	</child>
+	<child ref="ID00019">
+		<parent ref="ID00016"/>
+		<parent ref="ID00014"/>
+		<parent ref="ID00006"/>
+		<parent ref="ID00012"/>
+		<parent ref="ID00010"/>
+		<parent ref="ID00018"/>
+	</child>
+	<child ref="ID00018">
+		<parent ref="ID00006"/>
+		<parent ref="ID00017"/>
+	</child>
+	<child ref="ID00013">
+		<parent ref="ID00008"/>
+	</child>
+	<child ref="ID00016">
+		<parent ref="ID00015"/>
+		<parent ref="ID00006"/>
+	</child>
+	<child ref="ID00006">
+		<parent ref="ID00002"/>
+		<parent ref="ID00001"/>
+		<parent ref="ID00004"/>
+		<parent ref="ID00005"/>
+		<parent ref="ID00003"/>
+	</child>
+	<child ref="ID00009">
+		<parent ref="ID00008"/>
+	</child>
+	<child ref="ID00020">
+		<parent ref="ID00006"/>
+		<parent ref="ID00019"/>
+	</child>
+	<child ref="ID00014">
+		<parent ref="ID00013"/>
+		<parent ref="ID00006"/>
+	</child>
+	<child ref="ID00021">
+		<parent ref="ID00006"/>
+		<parent ref="ID00020"/>
+	</child>
+	<child ref="ID00015">
+		<parent ref="ID00008"/>
+	</child>
+	<child ref="ID00017">
+		<parent ref="ID00008"/>
+	</child>
+	<child ref="ID00011">
+		<parent ref="ID00008"/>
+	</child>
+	<child ref="ID00008">
+		<parent ref="ID00007"/>
+		<parent ref="ID00006"/>
+	</child>
+</adag>

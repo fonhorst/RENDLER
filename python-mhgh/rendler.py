@@ -124,7 +124,7 @@ class TestScheduler(Scheduler):
         self.testExecutor  = testExecutor
 
         self.rlock = threading.RLock()
-        self.required_resources_number = 2
+        self.required_resources_number = 9
         # task_id => ResourceInfo map
         self.active_resources = {}
 
@@ -135,7 +135,7 @@ class TestScheduler(Scheduler):
         self._driver = None
 
 
-        self.workflow = Utility.Utility.readWorkflow("Montage_5.xml",
+        self.workflow = Utility.Utility.readWorkflow("swanbsm20.xml",
                                                      "Workflow", "00",
                                                      deadline=1000, is_head=True)
 
@@ -170,7 +170,7 @@ class TestScheduler(Scheduler):
                     if execution_process_started:
                         # special service function
                         # whose goal is to simulate a situation of lost nodes
-                        self.check_for_nodes_fault()
+                        #self.check_for_nodes_fault()
                         pass
 
                     pass

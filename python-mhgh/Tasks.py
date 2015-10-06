@@ -22,7 +22,7 @@ class ComputationalTask:
     def run(self):
         runtime = self.task['runtime']
         # TODO: hack for debug
-        #runtime = 3
+        runtime = runtime / 200
         self.proc_handle = Popen(["python", self.EXE_PATH, str(runtime)])
         self.real_start_time = time.time()
         pass

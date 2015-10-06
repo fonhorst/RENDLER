@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- MEME-MAST bioinformatics workflow (Figure 9 in Ramakrishnan and Gannon) -->
+<adag xmlns="http://pegasus.isi.edu/schema/DAX" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pegasus.isi.edu/schema/DAX http://pegasus.isi.edu/schema/dax-2.1.xsd" name="f" jobCount="11" fileCount="0" childCount="6">
+	<job id="ID00008" namespace="f" name="bsm" runtime="2580" cores="1">
+		<uses file="hirlam.zip" link="input" size="26214400"/>
+		<uses file="Measurements.zip" link="input" size="2048"/>
+		<uses file="ccd.zip" link="output" size="26214400"/>
+	</job>
+	<job id="ID00006" namespace="f" name="bsmdatacollector" runtime="300" cores="1">
+		<uses file="Measurements.zip" link="input" size="2048"/>
+		<uses file="20070109-1200-00.txt" link="input" size="194560"/>
+		<uses file="bsh.zip" link="input" size="22528"/>
+		<uses file="Projects.zip" link="input" size="9437184"/>
+		<uses file="hirlam.zip" link="input" size="26214400"/>
+		<uses file="Projects.zip" link="output" size="9437184"/>
+		<uses file="20070109-1200-00.txt" link="output" size="194560"/>
+		<uses file="hirlam.zip" link="output" size="26214400"/>
+		<uses file="pointsToExtract.in.txt" link="output" size="1024"/>
+		<uses file="bsh.zip" link="output" size="22528"/>
+		<uses file="controlPoints.in.txt" link="output" size="1024"/>
+		<uses file="Measurements.zip" link="output" size="2048"/>
+	</job>
+	<job id="ID00011" namespace="f" name="planvisualizer" runtime="300" cores="1">
+		<uses file="Projects.zip" link="input" size="9437184"/>
+		<uses file="Measurements.zip" link="input" size="2048"/>
+		<uses file="planmakerout.out.txt" link="input" size="1024"/>
+	</job>
+	<job id="ID00010" namespace="f" name="planmaker" runtime="300" cores="1">
+		<uses file="Projects.zip" link="input" size="9437184"/>
+		<uses file="Measurements.zip" link="input" size="2048"/>
+		<uses file="ccdanalyzerout.out.txt" link="input" size="1024"/>
+		<uses file="planmakerout.out.txt" link="output" size="1024"/>
+	</job>
+	<job id="ID00002" namespace="f" name="bshprovider" runtime="300" cores="1">
+		<uses file="bsh.zip" link="output" size="22528"/>
+	</job>
+	<job id="ID00007" namespace="f" name="swan" runtime="2580" cores="1">
+		<uses file="hirlam.zip" link="input" size="26214400"/>
+		<uses file="hirlam.zip" link="output" size="26214400"/>
+	</job>
+	<job id="ID00003" namespace="f" name="lvlprovider" runtime="300" cores="1">
+		<uses file="Measurements.zip" link="output" size="2048"/>
+	</job>
+	<job id="ID00001" namespace="f" name="hirlamprovider" runtime="300" cores="1">
+		<uses file="hirlam.zip" link="output" size="26214400"/>
+	</job>
+	<job id="ID00009" namespace="f" name="ccdanalyzer" runtime="450" cores="1">
+		<uses file="ccd.zip" link="input" size="26214400"/>
+		<uses file="pointsToExtract.in.txt" link="input" size="1024"/>
+		<uses file="ccdanalyzerout.out.txt" link="output" size="1024"/>
+	</job>
+	<job id="ID00004" namespace="f" name="projectprovider" runtime="300" cores="1">
+		<uses file="Projects.zip" link="output" size="9437184"/>
+	</job>
+	<job id="ID00005" namespace="f" name="asmfieldprovider" runtime="300" cores="1">
+		<uses file="20070109-1200-00.txt" link="output" size="194560"/>
+	</job>
+	<child ref="ID00008">
+		<parent ref="ID00006"/>
+		<parent ref="ID00007"/>
+	</child>
+	<child ref="ID00006">
+		<parent ref="ID00003"/>
+		<parent ref="ID00004"/>
+		<parent ref="ID00002"/>
+		<parent ref="ID00005"/>
+		<parent ref="ID00001"/>
+	</child>
+	<child ref="ID00011">
+		<parent ref="ID00006"/>
+		<parent ref="ID00010"/>
+	</child>
+	<child ref="ID00010">
+		<parent ref="ID00006"/>
+		<parent ref="ID00009"/>
+	</child>
+	<child ref="ID00007">
+		<parent ref="ID00006"/>
+	</child>
+	<child ref="ID00009">
+		<parent ref="ID00006"/>
+		<parent ref="ID00008"/>
+	</child>
+</adag>
