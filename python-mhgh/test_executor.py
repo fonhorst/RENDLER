@@ -21,6 +21,7 @@ import logging
 import sys
 import threading
 import time
+from subprocess import Popen
 
 
 try:
@@ -35,10 +36,17 @@ except ImportError:
 import results
 import utils
 import messages
+import tasks
+
+
 
 
 
 class TestExecutor(Executor):
+
+    def __init__(self):
+        self._is_shutting_down = False
+        self.runnig_task = None
 
     def registered(self, driver, executorInfo, frameworkInfo, slaveInfo):
       logger.info("TestExecutor registered on hostname: " + str(slaveInfo.hostname))
@@ -51,7 +59,7 @@ class TestExecutor(Executor):
 
     def launchTask(self, driver, task):
         def run_task():
-            logger.info("Running test task %s" % task.task_id.value)
+            logger.info("Running main cycle %s" % task.task_id.value)
             update = mesos_pb2.TaskStatus()
             update.task_id.value = task.task_id.value
             update.state = mesos_pb2.TASK_RUNNING
@@ -62,12 +70,12 @@ class TestExecutor(Executor):
             #message = repr(res)
             #driver.sendFrameworkMessage(message)
 
-            time.sleep(10)
             message = {"type": messages.EMT_READYTOWORK}
             o = json.dumps(message)
             driver.sendFrameworkMessage(o)
 
-            time.sleep(100)
+            while(not self._is_shutting_down):
+                time.sleep(5)
 
             logger.info("Sending status update...")
             update = mesos_pb2.TaskStatus()
@@ -92,10 +100,20 @@ class TestExecutor(Executor):
         if o["type"] == messages.SMT_TERMINATEEXECUTOR:
             logger.info("Termination signal received...")
             self.shutdown(driver)
+        if o["type"] == messages.SMT_RUNTASK:
+            runtime = o["runtime"]
+            logger.info("run task, runtime: %s" % (runtime))
+            if self.runnig_task is not None:
+                # TODO: make a special message refuse to run
+                logger.info("Alarm! Node is not empty")
+                raise Exception("Node is not empty")
+            self.runnig_task = tasks.ComputationalTask(runtime)
+            ## spawn compute-intesive task
 
     def shutdown(self, driver):
       logger.info("Shutting down")
-      sys.exit(0)
+      self._is_shutting_down = True
+      #sys.exit(0)
 
     def error(self, error, message):
       pass

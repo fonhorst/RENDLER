@@ -33,25 +33,26 @@ class ResourceInfo:
     def __init__(self, executor_id, slave_id):
         self.executor_id = executor_id
         self.slave_id = slave_id
+
+        self.eId = mesos_pb2.ExecutorID()
+        self.eId.value = self.executor_id
+        self.sId = mesos_pb2.SlaveID()
+        self.sId.value = self.slave_id
     """
     :driver MesosSchedulerDriver
     """
     def askExecutor_Terminate(self, driver):
-
-        eId = mesos_pb2.ExecutorID()
-        eId.value = self.executor_id
-
-        sId = mesos_pb2.SlaveID()
-        sId.value = self.slave_id
-
         message = {"type": messages.SMT_TERMINATEEXECUTOR}
         o = json.dumps(message)
-        logger.info("Tryna to kill eID: %s sID: %s" % (eId, sId))
-        d = driver.sendFrameworkMessage(eId, sId, o)
-        logger.info("-- %s" % (d))
+        logger.info("Tryna to kill eID: %s sID: %s" % (self.eId, self.sId))
+        d = driver.sendFrameworkMessage(self.eId, self.sId, o)
         pass
 
-    def askExecutor_ExecuteWFTask(self, driver, task_as_str):
+    def askExecutor_RunTask(self, driver, runtime):
+        message = {"type": messages.SMT_RUNTASK, "runtime": runtime}
+        o = json.dumps(message)
+        logger.info("Running Task on eID: %s sID: %s" % (self.eId, self.sId))
+        d = driver.sendFrameworkMessage(self.eId, self.sId, o)
         raise NotImplementedError()
 
     def askExecutor_StartStageIn(self, driver, task_as_str):
