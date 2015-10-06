@@ -31,9 +31,12 @@ class TransferCalcExperimentEstimator(Estimator):
         else:
 
             transfer_time = 0
-            for filename, file in task2.input_files.items():
-                if filename in task1.output_files:
-                    transfer_time += (file.size / self.transfer_nodes)
+
+            ##TODO: only for debug
+            # for filename, file in task2.input_files.items():
+            #     if filename in task1.output_files:
+            #         transfer_time += (file.size / self.transfer_nodes)
+
             res = transfer_time
             #res = self.transfer_blades
         """

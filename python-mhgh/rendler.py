@@ -8,6 +8,7 @@ import sys
 import threading
 import time
 from threading import Thread
+import datetime
 
 try:
     from mesos.native import MesosExecutorDriver, MesosSchedulerDriver
@@ -117,6 +118,7 @@ class TestScheduler(Scheduler):
         logger.info("Wf job count %s" % self.workflow.get_task_count())
 
         self.current_schedule = Schedule.empty_schedule()
+        self.execution_process_start_time = None
 
     def setDriver(self, driver):
         self._driver = driver
@@ -154,7 +156,14 @@ class TestScheduler(Scheduler):
                                                        self.workflow.get_task_count()))
 
                 if self.workflow.get_task_count() == finished_tasks:
+                    end_execution_time = time.time()
+                    start = datetime.datetime.fromtimestamp(self.execution_process_start_time)
+                    end  = datetime.datetime.fromtimestamp(end_execution_time)
                     logger.info("Workload completed. Shutting down...")
+                    logger.info("Start execution time: %s" % (start))
+                    logger.info("End execution time: %s" % (end))
+                    logger.info("Execution time: %s" % ((end - start).seconds))
+
                     hard_shutdown()
 
                 time.sleep(2)
@@ -219,11 +228,20 @@ class TestScheduler(Scheduler):
            self.active_resources[executorId.value] = rinfo
 
         if message_type == messages.EMT_TASKFINISHED:
+            # id
+            # real_start_time
+            # real_end_time
             rinfo = self.active_resources[executorId.value]
 
-            finished_task_id = messages.message_body(message)['id']
+            body = messages.message_body(message)
+            finished_task_id = body['id']
+            real_start_time = body['real_start_time']
+            real_end_time = body['real_end_time']
 
             self.current_schedule.change_state_byId(finished_task_id, ScheduleItem.FINISHED)
+            node, item = self.current_schedule.place(finished_task_id)
+            item.real_start_time = real_start_time
+            item.real_end_time = real_end_time
             rinfo.change_state(ResourceInfo.FREE)
 
             self.run_next_tasks(driver)
@@ -271,6 +289,8 @@ class TestScheduler(Scheduler):
         heft_schedule = run_heft(self.workflow, self.rm, self.estimator)
         Utility.Utility.validate_static_schedule(self.workflow, heft_schedule)
         logger.info("HEFT makespan: " + str(Utility.Utility.makespan(heft_schedule)))
+
+        self.execution_process_start_time = time.time()
 
         self.current_schedule = heft_schedule
         self.run_next_tasks(driver)

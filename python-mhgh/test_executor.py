@@ -40,6 +40,8 @@ class TestExecutor(Executor):
     def __init__(self):
         self._is_shutting_down = False
         self.runnig_task = None
+        self.rlock = threading.RLock()
+
 
     def registered(self, driver, executorInfo, frameworkInfo, slaveInfo):
       logger.info("TestExecutor registered on hostname: " + str(slaveInfo.hostname))
@@ -67,8 +69,11 @@ class TestExecutor(Executor):
             driver.sendFrameworkMessage(message)
 
             while(not self._is_shutting_down):
+                self.rlock.acquire()
                 # report about task if it is finished
                 self.check_computations(driver)
+
+                self.rlock.release()
 
                 time.sleep(5)
 
@@ -103,6 +108,8 @@ class TestExecutor(Executor):
             # here should be Task instance
             task = messages.message_body(message)
             logger.info("run task id: %s, runtime: %s" % (task['id'], task['runtime']))
+            self.rlock.acquire()
+
             if self.runnig_task is not None:
                 # TODO: make a special message to refuse to run
                 logger.error("Alarm! Node is not empty")
@@ -110,6 +117,8 @@ class TestExecutor(Executor):
             self.runnig_task = tasks.ComputationalTask(task)
             ## spawn compute-intesive task
             self.runnig_task.run()
+
+            self.rlock.release()
 
         pass
 
