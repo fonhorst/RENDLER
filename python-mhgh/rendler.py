@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from collections import deque
 
 import json
 import logging
@@ -54,7 +55,7 @@ class ResourceInfo:
         o = json.dumps(message)
         logger.info("Running Task on eID: %s sID: %s" % (self.eId, self.sId))
         d = driver.sendFrameworkMessage(self.eId, self.sId, o)
-        raise NotImplementedError()
+        pass
 
     def askExecutor_StartStageIn(self, driver, task_as_str):
         raise NotImplementedError()
@@ -78,6 +79,13 @@ class TestScheduler(Scheduler):
         #self.viewed_slaves = set()
         self._driver = None
 
+        self.task_queue = deque([{'runtime': 10},
+                                 {'runtime': 9},
+                                 {'runtime': 8},
+                                 {'runtime': 7},
+                                 {'runtime': 6}
+        ])
+
     def setDriver(self, driver):
         self._driver = driver
         pass
@@ -88,21 +96,30 @@ class TestScheduler(Scheduler):
         def run_scheduler_loop():
             logger.info("Scheduler loop is active")
             pool_has_been_formed = False
-            not_active = False
+            execution_process_started = False
             while not self.shuttingDown:
 
-                if not_active:
-                    time.sleep(2)
-                    continue
+                # if not_active:
+                #     time.sleep(2)
+                #     continue
 
                 if pool_has_been_formed:
-                    logger.info("Pool formed - terminate it")
-                    self._terminate_pool()
-                    not_active = True
+                    if not execution_process_started:
+                        logger.info("Try to start execution process")
+                        self.start_execution_process(driver)
+                        execution_process_started = True
+                        pass
+
+                    #logger.info("Pool formed - terminate it")
+                    #self._terminate_pool()
+                    #not_active = True
                     pass
                 elif self._is_pool_formed():
                     logger.info("Pool has been formed")
                     pool_has_been_formed = True
+                    pass
+
+                logger.info("TaskQueue contains %s jobs" % len(self.task_queue))
 
                 time.sleep(2)
             logger.info("Scheduler loop is stopped")
@@ -168,6 +185,13 @@ class TestScheduler(Scheduler):
            rinfo = ResourceInfo(executorId.value, slaveId.value)
            self.active_resources[executorId.value] = rinfo
 
+        if o["type"] == messages.EMT_TASKFINISHED:
+            rinfo = self.active_resources[executorId.value]
+            if len(self.task_queue) > 0:
+                task = self.task_queue.popleft()
+                runtime = task['runtime']
+                rinfo.askExecutor_RunTask(driver, runtime)
+
     """
     This function tries to form resource pool.
     if resources are enough it returns true
@@ -195,6 +219,12 @@ class TestScheduler(Scheduler):
         for task_id, rinfo in self.active_resources.items():
             rinfo.askExecutor_Terminate(self._driver)
         pass
+
+    def start_execution_process(self, driver):
+        for executor_Id, rinfo in self.active_resources.items():
+            task = self.task_queue.popleft()
+            runtime = task['runtime']
+            rinfo.askExecutor_RunTask(driver, runtime)
 
     pass
 
