@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 from collections import deque
 
-import json
 import logging
 import os
 import signal
@@ -45,17 +44,15 @@ class ResourceInfo:
     :driver MesosSchedulerDriver
     """
     def askExecutor_Terminate(self, driver):
-        message = {"type": messages.SMT_TERMINATEEXECUTOR}
-        o = json.dumps(message)
+        message = messages.create_message(messages.SMT_TERMINATEEXECUTOR)
         logger.info("Tryna to kill eID: %s sID: %s" % (self.eId, self.sId))
-        d = driver.sendFrameworkMessage(self.eId, self.sId, o)
+        d = driver.sendFrameworkMessage(self.eId, self.sId, message)
         pass
 
-    def askExecutor_RunTask(self, driver, runtime):
-        message = {"type": messages.SMT_RUNTASK, "runtime": runtime}
-        o = json.dumps(message)
-        logger.info("Running Task on eID: %s sID: %s" % (self.eId, self.sId))
-        d = driver.sendFrameworkMessage(self.eId, self.sId, o)
+    def askExecutor_RunTask(self, driver, task):
+        message = messages.create_message(messages.SMT_RUNTASK, task.json_repr())
+        logger.info("Running Task %s on eID: %s sID: %s" % (task.id, self.eId, self.sId))
+        d = driver.sendFrameworkMessage(self.eId, self.sId, message)
         pass
 
     def askExecutor_StartStageIn(self, driver, task_as_str):
@@ -81,18 +78,14 @@ class TestScheduler(Scheduler):
         self._driver = None
 
 
-        self.workflow = Utility.Utility.readWorkflow("Montage_5.xml",
+        self.workflow = Utility.Utility.readWorkflow("Montage_5_reduced_runtime.xml",
                                                      "Workflow", "00",
                                                      deadline=1000, is_head=True)
 
         logger.info("Wf job count %s" % self.workflow.get_task_count())
 
-        self.task_queue = deque([{'runtime': 10},
-                                 {'runtime': 9},
-                                 {'runtime': 8},
-                                 {'runtime': 7},
-                                 {'runtime': 6}
-        ])
+        self.finished_tasks = set([self.workflow.head_task.id])
+        self.running_tasks = set()
 
     def setDriver(self, driver):
         self._driver = driver
@@ -107,27 +100,25 @@ class TestScheduler(Scheduler):
             execution_process_started = False
             while not self.shuttingDown:
 
-                # if not_active:
-                #     time.sleep(2)
-                #     continue
-
                 if pool_has_been_formed:
                     if not execution_process_started:
                         logger.info("Try to start execution process")
                         self.start_execution_process(driver)
                         execution_process_started = True
                         pass
-
-                    #logger.info("Pool formed - terminate it")
-                    #self._terminate_pool()
-                    #not_active = True
                     pass
                 elif self._is_pool_formed():
                     logger.info("Pool has been formed")
                     pool_has_been_formed = True
                     pass
 
-                logger.info("TaskQueue contains %s jobs" % len(self.task_queue))
+                # -1 - we don't need to account a head_task
+                logger.info("Tasks running %s " % (len(self.running_tasks)))
+                logger.info("Tasks finished %s/%s " % (len(self.finished_tasks) - 1, self.workflow.get_task_count()))
+
+                if self.workflow.get_task_count() == len(self.finished_tasks) - 1:
+                    logger.info("Workload completed. Shutting down...")
+                    hard_shutdown()
 
                 time.sleep(2)
             logger.info("Scheduler loop is stopped")
@@ -174,10 +165,6 @@ class TestScheduler(Scheduler):
                 continue
 
             self._try_to_form_pool(offer, driver)
-
-            #if self._is_pool_formed():
-                #logger.info("Pool is full. Terminate it")
-                #self._terminate_pool()
         pass
 
     def statusUpdate(self, driver, update):
@@ -185,20 +172,27 @@ class TestScheduler(Scheduler):
         logger.info("Task [%s] is in state [%s]" % (update.task_id.value, stateName))
 
     def frameworkMessage(self, driver, executorId, slaveId, message):
-        o = json.loads(message)
-        logger.info("Message: " + str(slaveId) + " " + str(executorId) + " " + str(o))
+        logger.info("Message: " + str(slaveId) + " " + str(executorId) + " " + str(message))
 
-        if o["type"] == messages.EMT_READYTOWORK:
+        message_type = messages.message_type(message)
+
+        if message_type == messages.EMT_READYTOWORK:
            # confirm resource as active
            rinfo = ResourceInfo(executorId.value, slaveId.value)
            self.active_resources[executorId.value] = rinfo
 
-        if o["type"] == messages.EMT_TASKFINISHED:
+        if message_type == messages.EMT_TASKFINISHED:
             rinfo = self.active_resources[executorId.value]
-            if len(self.task_queue) > 0:
-                task = self.task_queue.popleft()
-                runtime = task['runtime']
-                rinfo.askExecutor_RunTask(driver, runtime)
+
+            finished_task_id = messages.message_body(message)['id']
+            self.finished_tasks.add(finished_task_id )
+            tasks = self.workflow.ready_to_run_tasks(self.finished_tasks, self.running_tasks)
+            self.running_tasks.remove(finished_task_id)
+            if len(tasks) > 0:
+                task = tasks[0]
+                rinfo.askExecutor_RunTask(driver, task)
+                self.running_tasks.add(task.id)
+
 
     """
     This function tries to form resource pool.
@@ -229,10 +223,14 @@ class TestScheduler(Scheduler):
         pass
 
     def start_execution_process(self, driver):
+        tasks = deque(self.workflow.ready_to_run_tasks(self.finished_tasks, self.running_tasks))
+        logger.info("Ready to run tasks %s" % (tasks))
+        if len(tasks) == 0:
+            return
         for executor_Id, rinfo in self.active_resources.items():
-            task = self.task_queue.popleft()
-            runtime = task['runtime']
-            rinfo.askExecutor_RunTask(driver, runtime)
+            task = tasks.popleft()
+            rinfo.askExecutor_RunTask(driver, task)
+            self.running_tasks.add(task.id)
 
     pass
 

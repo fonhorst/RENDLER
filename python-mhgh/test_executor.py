@@ -15,13 +15,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import json
 import logging
 
 import sys
 import threading
 import time
-from subprocess import Popen
 
 
 try:
@@ -32,8 +30,6 @@ except ImportError:
     from mesos import Executor, MesosExecutorDriver, MesosSchedulerDriver, Scheduler
     import mesos_pb2
 
-
-import results
 import utils
 import messages
 import tasks
@@ -67,9 +63,8 @@ class TestExecutor(Executor):
             #message = repr(res)
             #driver.sendFrameworkMessage(message)
 
-            message = {"type": messages.EMT_READYTOWORK}
-            o = json.dumps(message)
-            driver.sendFrameworkMessage(o)
+            message = messages.create_message(messages.EMT_READYTOWORK)
+            driver.sendFrameworkMessage(message)
 
             while(not self._is_shutting_down):
                 # report about task if it is finished
@@ -96,22 +91,23 @@ class TestExecutor(Executor):
     def frameworkMessage(self, driver, message):
         #logger("Ignoring framework message: %s" % message)
         logger.info("Message received: %s" % message)
-        o = json.loads(message)
+        message_type = messages.message_type(message)
 
         # finish
-        if o["type"] == messages.SMT_TERMINATEEXECUTOR:
+        if message_type == messages.SMT_TERMINATEEXECUTOR:
             logger.info("Termination signal received...")
             self.shutdown(driver)
 
         # run comp task
-        if o["type"] == messages.SMT_RUNTASK:
-            runtime = o["runtime"]
-            logger.info("run task, runtime: %s" % (runtime))
+        if message_type == messages.SMT_RUNTASK:
+            # here should be Task instance
+            task = messages.message_body(message)
+            logger.info("run task id: %s, runtime: %s" % (task['id'], task['runtime']))
             if self.runnig_task is not None:
                 # TODO: make a special message to refuse to run
                 logger.error("Alarm! Node is not empty")
                 raise Exception("Node is not empty")
-            self.runnig_task = tasks.ComputationalTask(runtime)
+            self.runnig_task = tasks.ComputationalTask(task)
             ## spawn compute-intesive task
             self.runnig_task.run()
 
@@ -132,9 +128,8 @@ class TestExecutor(Executor):
         if not self.runnig_task.is_finished():
             return False
 
-        message = {"type": messages.EMT_TASKFINISHED}
-        o = json.dumps(message)
-        driver.sendFrameworkMessage(o)
+        message = messages.create_message(messages.EMT_TASKFINISHED, self.runnig_task.task_repr())
+        driver.sendFrameworkMessage(message)
 
         self.runnig_task = None
         return True

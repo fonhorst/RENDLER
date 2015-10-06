@@ -1,18 +1,28 @@
 from copy import copy
 import functools
+import json
+import logging
 import sys
 import uuid
 # #just an enum
 
+logger = logging.getLogger("default_logger")
 
-class SoftItem:
+class JsonSerializable:
+    def json_repr(self):
+        dct = {key: list(value) if isinstance(value, set) else value for key, value in self.__dict__.items()}
+        return json.dumps(dct, sort_keys = True)
+
+
+
+class SoftItem(JsonSerializable):
     windows = "windows"
     unix = "unix"
     matlab = "matlab"
     ANY_SOFT = "any_soft"
 
 
-class Resource:
+class Resource(JsonSerializable):
 
     Down = "down"
     Unknown = "unknown"
@@ -50,7 +60,7 @@ class Resource:
         return hash(self.name)
 
 
-class Node:
+class Node(JsonSerializable):
 
     Down = "down"
     Unknown = "unknown"
@@ -141,6 +151,9 @@ class Workflow:
     def byId(self, id):
         if self._id_to_task is None:
             self._id_to_task = {t.id: t for t in self.get_all_unique_tasks()}
+        if id == self.head_task.id:
+            # exceptional case
+            return self.head_task
         return self._id_to_task.get(id, None)
 
     def is_parent_child(self, id1, id2):
@@ -184,8 +197,18 @@ class Workflow:
         build(self.head_task)
         self._parent_child_dict = {k: set(v) for k, v in self._parent_child_dict.items()}
 
+    """
+    :finished_tasks - list of ids
+    """
+    def ready_to_run_tasks(self, finished_tasks, running_tasks):
+        child_tasks = [child_task for task_id in finished_tasks
+                       for child_task in self.byId(task_id).children]
+        ready_to_run_tasks = [task for task in child_tasks
+                              if (task.id not in finished_tasks) and (task.id not in running_tasks)]
+        return ready_to_run_tasks
 
-class Task:
+
+class Task(JsonSerializable):
     def __init__(self, id, internal_wf_id, is_head=False):
         self.id = id
         self.internal_wf_id = internal_wf_id
@@ -204,6 +227,8 @@ class Task:
     def __repr__(self):
         return self.id
 
+
+
     # def __hash__(self):
     #     return hash(self.id)
     #
@@ -213,7 +238,21 @@ class Task:
     #     else:
     #         return super().__eq__(other)
 
-class File:
+    def json_repr(self):
+        dct = {key: list(value) if isinstance(value, set) else value for key, value in self.__dict__.items()}
+        logger.info(dct['input_files'])
+        dct['input_files'] = [] if dct['input_files'] is None else {filename: file.json_repr()
+                                                                    for filename, file in dct['input_files'].items()}
+        dct['output_files'] = [] if dct['output_files'] is None else {filename: file.json_repr()
+                                                                      for filename, file in dct['output_files'].items()}
+        del dct['children']
+        del dct['parents']
+        del dct['wf']
+        return json.dumps(dct, sort_keys = True)
+
+
+
+class File(JsonSerializable):
     def __init__(self, name, size):
         self.name = name
         self.size = size

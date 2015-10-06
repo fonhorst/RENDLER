@@ -1,3 +1,4 @@
+import json
 import logging
 import utils
 from subprocess import Popen
@@ -9,12 +10,14 @@ class ComputationalTask:
 
     EXE_PATH = "activity_imitator.py"
 
-    def __init__(self, runtime):
-        self.runtime = runtime
+    def __init__(self, task):
+        # Task instance in json format
+        self.task = task
         self.proc_handle = None
 
     def run(self):
-        self.proc_handle = Popen(["python", self.EXE_PATH, str(self.runtime)])
+        runtime = self.task['runtime']
+        self.proc_handle = Popen(["python", self.EXE_PATH, str(runtime)])
         pass
 
     def is_finished(self):
@@ -25,4 +28,8 @@ class ComputationalTask:
                 raise Exception(error_msg)
             return True
         return False
+
+    def task_repr(self):
+        return json.dumps({'id': self.task['id']})
+
     pass
