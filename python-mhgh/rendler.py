@@ -21,6 +21,7 @@ except ImportError:
 import task_state
 import utils
 import messages
+from environment import Utility
 
 TASK_CPUS = 0.1
 TASK_MEM = 32
@@ -78,6 +79,13 @@ class TestScheduler(Scheduler):
         self.tasksCreated = 0
         #self.viewed_slaves = set()
         self._driver = None
+
+
+        self.workflow = Utility.Utility.readWorkflow("Montage_5.xml",
+                                                     "Workflow", "00",
+                                                     deadline=1000, is_head=True)
+
+        logger.info("Wf job count %s" % self.workflow.get_task_count())
 
         self.task_queue = deque([{'runtime': 10},
                                  {'runtime': 9},
