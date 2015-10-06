@@ -75,6 +75,7 @@ class ResourceInfo:
         # resource should be set later
         node = Node(self.name, None, [SoftItem.ANY_SOFT], flops=1)
         node.state = Node.Down if self.state == ResourceInfo.DEAD else Node.Unknown
+        logger.info("name %s - state %s" % (self.name, node.state))
         return node
 
     """
@@ -169,7 +170,7 @@ class TestScheduler(Scheduler):
                     if execution_process_started:
                         # special service function
                         # whose goal is to simulate a situation of lost nodes
-                        #self.check_for_nodes_fault()
+                        self.check_for_nodes_fault()
                         pass
 
                     pass
@@ -196,6 +197,8 @@ class TestScheduler(Scheduler):
                     logger.info("Start execution time: %s" % (start))
                     logger.info("End execution time: %s" % (end))
                     logger.info("Execution time: %s" % ((end - start)))
+
+                    Utility.Utility.validate_dynamic_schedule(self.workflow, self.current_schedule)
 
                     hard_shutdown()
 
@@ -295,11 +298,16 @@ class TestScheduler(Scheduler):
             real_start_time = body['real_start_time']
             real_end_time = body['real_end_time']
 
-            self.current_schedule.change_state_byId(finished_task_id, ScheduleItem.FINISHED)
-            node, item = self.current_schedule.place(finished_task_id)
+            # self.current_schedule.change_state_byId(finished_task_id, ScheduleItem.FINISHED)
+
+            node, item = self.current_schedule.place_non_failed(finished_task_id)
+            logger.info("Item state: %s" % item.state)
             item.real_start_time = real_start_time
             item.real_end_time = real_end_time
+            item.state = ScheduleItem.FINISHED
             rinfo.change_state(ResourceInfo.FREE)
+
+            logger.info("TaskFinished: %s" % self.current_schedule)
 
             self.run_next_tasks(driver)
 
@@ -413,6 +421,7 @@ class TestScheduler(Scheduler):
         all_task_count  = len(self.workflow.get_all_unique_tasks())
         # if finished_task_count >= all_task_count*0.5:
         if finished_task_count >= 1 and not self.fail_has_been_generated:
+            logger.info("Tring to kill")
             self.fail_has_been_generated = True
             resources = list(sorted(self.active_resources.keys()))
             # resources_to_be_killed = resources[:int(len(resources)/2)]
@@ -445,16 +454,21 @@ class TestScheduler(Scheduler):
                 new_node = self.rm.get_node_by_name(node.name)
                 new_mapping[new_node] = []
                 for item in items:
-                    if node.state == Node.Down and item.state == ScheduleItem.EXECUTING:
+                    if new_node.state == Node.Down and item.state == ScheduleItem.EXECUTING:
                         ## TODO: marks tasks as failed
                         item.state = ScheduleItem.FAILED
                     if item.state != ScheduleItem.UNSTARTED:
                         new_mapping[new_node].append(item)
             clean_schedule = Schedule(new_mapping)
 
+            logger.info("Clean schedule: %s" % clean_schedule)
+
             # resume execution process
             heft_schedule = run_heft(self.workflow, self.rm, self.estimator, fixed_schedule=clean_schedule)
-            Utility.Utility.validate_static_schedule(self.workflow, heft_schedule)
+
+            logger.info("New Heft Schedule: %s" % heft_schedule)
+
+
             logger.info("New HEFT makespan: " + str(Utility.Utility.makespan(heft_schedule)))
             self.current_schedule = heft_schedule
             self.run_next_tasks(self._driver)

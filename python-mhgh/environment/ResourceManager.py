@@ -150,6 +150,13 @@ class Schedule:
                     return (node,item)
         return None
 
+    def place_non_failed(self, id):
+        for (node, items) in self.mapping.items():
+            for item in items:
+                if item.state != ScheduleItem.FAILED and item.job.id == id:
+                    return (node,item)
+        return None
+
     def change_state_executed(self, task, state):
         for (node, items) in self.mapping.items():
             for item in items:
@@ -190,11 +197,11 @@ class Schedule:
 
 
     def change_state(self, task, state):
-        (node, item) = self.place(task.id)
+        (node, item) = self.place_non_failed(task.id)
         item.state = state
 
     def change_state_byId(self, id, state):
-        (node, item) = self.place(id)
+        (node, item) = self.place_non_failed(id)
         item.state = state
 
 
