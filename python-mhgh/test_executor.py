@@ -39,9 +39,6 @@ import messages
 import tasks
 
 
-
-
-
 class TestExecutor(Executor):
 
     def __init__(self):
@@ -75,6 +72,9 @@ class TestExecutor(Executor):
             driver.sendFrameworkMessage(o)
 
             while(not self._is_shutting_down):
+                # report about task if it is finished
+                self.check_computations(driver)
+
                 time.sleep(5)
 
             logger.info("Sending status update...")
@@ -97,18 +97,25 @@ class TestExecutor(Executor):
         #logger("Ignoring framework message: %s" % message)
         logger.info("Message received: %s" % message)
         o = json.loads(message)
+
+        # finish
         if o["type"] == messages.SMT_TERMINATEEXECUTOR:
             logger.info("Termination signal received...")
             self.shutdown(driver)
+
+        # run comp task
         if o["type"] == messages.SMT_RUNTASK:
             runtime = o["runtime"]
             logger.info("run task, runtime: %s" % (runtime))
             if self.runnig_task is not None:
-                # TODO: make a special message refuse to run
-                logger.info("Alarm! Node is not empty")
+                # TODO: make a special message to refuse to run
+                logger.error("Alarm! Node is not empty")
                 raise Exception("Node is not empty")
             self.runnig_task = tasks.ComputationalTask(runtime)
             ## spawn compute-intesive task
+            self.runnig_task.run()
+
+        pass
 
     def shutdown(self, driver):
       logger.info("Shutting down")
@@ -117,6 +124,20 @@ class TestExecutor(Executor):
 
     def error(self, error, message):
       pass
+
+    def check_computations(self, driver):
+        if self.runnig_task is None:
+            return False
+
+        if not self.runnig_task.is_finished():
+            return False
+
+        message = {"type": messages.EMT_TASKFINISHED}
+        o = json.dumps(message)
+        driver.sendFrameworkMessage(o)
+
+        self.runnig_task = None
+        return True
 
 if __name__ == "__main__":
 

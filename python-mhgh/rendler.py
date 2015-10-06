@@ -5,6 +5,7 @@ import logging
 import os
 import signal
 import sys
+import threading
 import time
 from threading import Thread
 
@@ -84,6 +85,33 @@ class TestScheduler(Scheduler):
     def registered(self, driver, frameworkId, masterInfo):
         logger.info("Registered with framework ID [%s]" % frameworkId.value)
 
+        def run_scheduler_loop():
+            logger.info("Scheduler loop is active")
+            pool_has_been_formed = False
+            not_active = False
+            while not self.shuttingDown:
+
+                if not_active:
+                    time.sleep(2)
+                    continue
+
+                if pool_has_been_formed:
+                    logger.info("Pool formed - terminate it")
+                    self._terminate_pool()
+                    not_active = True
+                    pass
+                elif self._is_pool_formed():
+                    logger.info("Pool has been formed")
+                    pool_has_been_formed = True
+
+                time.sleep(2)
+            logger.info("Scheduler loop is stopped")
+            pass
+
+        thread = threading.Thread(target=run_scheduler_loop)
+        thread.start()
+        pass
+
     def makeTaskPrototype(self, offer):
         task = mesos_pb2.TaskInfo()
         tid = self.tasksCreated
@@ -122,11 +150,10 @@ class TestScheduler(Scheduler):
 
             self._try_to_form_pool(offer, driver)
 
-            if self._is_pool_formed():
-                logger.info("Pool is full. Terminate it")
-                for task_id, rinfo in self.active_resources.items():
-                    rinfo.askExecutor_Terminate(driver)
+            #if self._is_pool_formed():
+                #logger.info("Pool is full. Terminate it")
                 #self._terminate_pool()
+        pass
 
     def statusUpdate(self, driver, update):
         stateName = task_state.nameFor[update.state]
@@ -197,6 +224,8 @@ if __name__ == "__main__":
     baseURI = "/home/vagrant/devfiles"
     suffixURI = "python-mhgh"
     uris = [ "test_executor.py",
+             "tasks.py",
+             "activity_imitator.py",
              "results.py",
              "messages.py",
              "task_state.py",
