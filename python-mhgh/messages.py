@@ -7,6 +7,7 @@ EMT_TASKFINISHED = "TaskFinished"
 # Scheduler message type
 SMT_TERMINATEEXECUTOR = "TerminateExecutor"
 SMT_RUNTASK = "RunTask"
+SMT_POISONPILL = "PoisonPill"
 
 
 def create_message(type, body=""):

@@ -22,7 +22,7 @@ class ComputationalTask:
     def run(self):
         runtime = self.task['runtime']
         # TODO: hack for debug
-        # runtime = 5
+        #runtime = 3
         self.proc_handle = Popen(["python", self.EXE_PATH, str(runtime)])
         self.real_start_time = time.time()
         pass
@@ -36,6 +36,10 @@ class ComputationalTask:
             self.real_end_time = time.time() if self.real_end_time is None else self.real_end_time
             return True
         return False
+
+    def killTask(self):
+        self.proc_handle.kill()
+        pass
 
     def task_repr(self):
         return json.dumps({'id': self.task['id'],

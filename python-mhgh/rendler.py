@@ -43,20 +43,29 @@ from environment.BaseElements import Node, SoftItem
 
 class ResourceInfo:
 
+    # executor runs currently a task
     BUSY = "busy"
+    # executor do nothing
     FREE = "free"
+    # offer was accepted, by executor hasn't sent an answer back yet
+    NOT_CONFIRMED = "not_confirmed"
+    # failed
+    DEAD = "dead"
 
-    def __init__(self, executor_id, slave_id):
+    def __init__(self, executor_id, slave_id, task_id):
         self.executor_id = executor_id
         self.slave_id = slave_id
+        self.task_id = task_id
         self.name = self.executor_id
 
         self.eId = mesos_pb2.ExecutorID()
         self.eId.value = self.executor_id
         self.sId = mesos_pb2.SlaveID()
         self.sId.value = self.slave_id
+        self.tId = mesos_pb2.TaskID()
+        self.tId.value = self.task_id
 
-        self.state = ResourceInfo.FREE
+        self.state = ResourceInfo.NOT_CONFIRMED
 
     """
     :return Node instance
@@ -82,8 +91,20 @@ class ResourceInfo:
         d = driver.sendFrameworkMessage(self.eId, self.sId, message)
         pass
 
+    def askExecutor_PoisonPill(self, driver):
+        message = messages.create_message(messages.SMT_POISONPILL)
+        logger.info("Sending Poison Pill to eID: %s sID: %s" % (self.eId, self.sId))
+        d = driver.sendFrameworkMessage(self.eId, self.sId, message)
+        pass
+
     def askExecutor_StartStageIn(self, driver, task_as_str):
         raise NotImplementedError()
+
+    def killExecutor(self, driver):
+        logger.info("Killing executor %s" % self.executor_id)
+        d = driver.killTask(self.tId)
+        pass
+
 
     def change_state(self, new_state):
         self.state = new_state
@@ -100,6 +121,7 @@ class TestScheduler(Scheduler):
 
         self.testExecutor  = testExecutor
 
+        self.rlock = threading.RLock()
         self.required_resources_number = 2
         # task_id => ResourceInfo map
         self.active_resources = {}
@@ -111,7 +133,7 @@ class TestScheduler(Scheduler):
         self._driver = None
 
 
-        self.workflow = Utility.Utility.readWorkflow("Montage_25.xml",
+        self.workflow = Utility.Utility.readWorkflow("Montage_5.xml",
                                                      "Workflow", "00",
                                                      deadline=1000, is_head=True)
 
@@ -119,6 +141,9 @@ class TestScheduler(Scheduler):
 
         self.current_schedule = Schedule.empty_schedule()
         self.execution_process_start_time = None
+
+        # dirty hack for quick solution
+        self.fail_has_been_generated = False
 
     def setDriver(self, driver):
         self._driver = driver
@@ -132,13 +157,19 @@ class TestScheduler(Scheduler):
             pool_has_been_formed = False
             execution_process_started = False
             while not self.shuttingDown:
-
+                self.rlock.acquire()
                 if pool_has_been_formed:
                     if not execution_process_started:
                         logger.info("Try to start execution process")
                         self.start_execution_process(driver)
                         execution_process_started = True
                         pass
+
+                    if execution_process_started:
+                        # special service function
+                        # whose goal is to simulate a situation of lost nodes
+                        self.check_for_nodes_fault()
+
                     pass
                 elif self._is_pool_formed():
                     logger.info("Pool has been formed")
@@ -165,6 +196,8 @@ class TestScheduler(Scheduler):
                     logger.info("Execution time: %s" % ((end - start).seconds))
 
                     hard_shutdown()
+
+                self.rlock.release()
 
                 time.sleep(2)
             logger.info("Scheduler loop is stopped")
@@ -217,15 +250,37 @@ class TestScheduler(Scheduler):
         stateName = task_state.nameFor[update.state]
         logger.info("Task [%s] is in state [%s]" % (update.task_id.value, stateName))
 
+        if stateName == "TASK_LOST":
+            logger.info("YESYESYES")
+            logger.info("YESYESYES")
+            logger.info("YESYESYES")
+            logger.info("YESYESYES")
+
+        pass
+
+    def offerRescinded(self, driver, offerId):
+       logger.info("Offer rescinded" % (offerId))
+       pass
+
+
     def frameworkMessage(self, driver, executorId, slaveId, message):
         logger.info("Message: " + str(slaveId) + " " + str(executorId) + " " + str(message))
+
+        self.rlock.acquire()
+
+        if executorId.value not in self.active_resources:
+            logger.info("Exceutor %s hasn't been recognized as registered. Dropping message. Possibly that executor was deleted" % (executorId.value))
+            return
+
+        if self.active_resources[executorId.value].state == ResourceInfo.DEAD:
+            logger.info("Executor %s marked as a dead. Dropping message" % (executorId.value))
+            return
 
         message_type = messages.message_type(message)
 
         if message_type == messages.EMT_READYTOWORK:
            # confirm resource as active
-           rinfo = ResourceInfo(executorId.value, slaveId.value)
-           self.active_resources[executorId.value] = rinfo
+           self.active_resources[executorId.value].change_state(ResourceInfo.FREE)
 
         if message_type == messages.EMT_TASKFINISHED:
             # id
@@ -252,6 +307,7 @@ class TestScheduler(Scheduler):
             #     task = tasks[0]
             #     rinfo.askExecutor_RunTask(driver, task)
             #     self.running_tasks.add(task.id)
+        self.rlock.release()
 
 
     """
@@ -265,7 +321,9 @@ class TestScheduler(Scheduler):
             task = self.makeTestTask("test_for_" + str(offer.hostname), offer)
             driver.launchTasks(offer.id, [task])
             # add the resource to pool
-            self.active_resources[task.executor.executor_id.value] = None
+            self.active_resources[task.executor.executor_id.value] = ResourceInfo(task.executor.executor_id.value,
+                                                                                  task.slave_id.value,
+                                                                                  task.task_id.value)
         else:
             logger.info("Declining offer on [%s]" % offer.hostname)
             logger.info("We already have [%s/%s]" % (len(self.active_resources), self.required_resources_number))
@@ -294,8 +352,6 @@ class TestScheduler(Scheduler):
 
         self.current_schedule = heft_schedule
         self.run_next_tasks(driver)
-
-    pass
 
     def run_next_tasks(self, driver):
         # in this case, this funcion will return only first level tasks
@@ -347,6 +403,33 @@ class TestScheduler(Scheduler):
         self.estimator = estimator
 
         return rm, estimator
+
+        pass
+
+    def check_for_nodes_fault(self):
+        finished_task_count = len(self.current_schedule.finished_node_item_pairs())
+        all_task_count  = len(self.workflow.get_all_unique_tasks())
+        # if finished_task_count >= all_task_count*0.5:
+        if finished_task_count >= 1 and not self.fail_has_been_generated:
+            self.fail_has_been_generated = True
+            resources = list(sorted(self.active_resources.keys()))
+            # resources_to_be_killed = resources[:int(len(resources)/2)]
+            resources_to_be_killed = [resources[0]]
+            for executor_id in resources_to_be_killed:
+                rinfo = self.active_resources[executor_id]
+                rinfo.killExecutor(driver)
+                rinfo.change_state(ResourceInfo.DEAD)
+                #rinfo.askExecutor_PoisonPill(driver)
+
+            # now we can count that resources has been gone. We need:
+            # 1) update rm
+            # 2) update schedule, marks part of tasks as a failed
+            # 3) relaunch scheduling and remake schedule
+            # 3) check if the new solution is within deadline border
+            # 4) if it is not, try to generate new solution with reduced count tasks
+            # 5) repeat 3 - 5 until either succesful is found or there is no option any more
+            # 6) if solution has been found apply, other raise exception about deadline violation
+
 
         pass
 

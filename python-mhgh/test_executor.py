@@ -41,6 +41,7 @@ class TestExecutor(Executor):
         self._is_shutting_down = False
         self.runnig_task = None
         self.rlock = threading.RLock()
+        self.current_task = None
 
 
     def registered(self, driver, executorInfo, frameworkInfo, slaveInfo):
@@ -53,6 +54,7 @@ class TestExecutor(Executor):
       logger.info("TestExecutor disconnected")
 
     def launchTask(self, driver, task):
+        self.current_task = task
         def run_task():
             logger.info("Running main cycle %s" % task.task_id.value)
             update = mesos_pb2.TaskStatus()
@@ -120,12 +122,31 @@ class TestExecutor(Executor):
 
             self.rlock.release()
 
+        # simulating of node fail
+        if message_type == messages.SMT_POISONPILL:
+            logger.info("Poison pill has been received")
+            self.abruptShutdown(driver)
+
         pass
 
     def shutdown(self, driver):
       logger.info("Shutting down")
       self._is_shutting_down = True
       #sys.exit(0)
+
+    def abruptShutdown(self, driver):
+        self.rlock.acquire()
+        logger.info("Shutting down")
+        update = mesos_pb2.TaskStatus()
+        update.task_id.value = self.current_task.task_id.value
+        update.state = mesos_pb2.TASK_LOST
+        driver.sendStatusUpdate(update)
+
+        if self.runnig_task is not None:
+            self.runnig_task.killTask()
+        #sys.exit(1)
+        self._is_shutting_down = True
+        self.rlock.release()
 
     def error(self, error, message):
       pass
@@ -136,7 +157,7 @@ class TestExecutor(Executor):
 
         if not self.runnig_task.is_finished():
             return False
-
+        logger.info("Task %s is finished. Trying to report to the master" % self.runnig_task.task['id'])
         message = messages.create_message(messages.EMT_TASKFINISHED, self.runnig_task.task_repr())
         driver.sendFrameworkMessage(message)
 
