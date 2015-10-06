@@ -78,6 +78,10 @@ class ScheduleItem:
         self.job = job ## either task or service operation like vm up
         self.start_time = start_time
         self.end_time = end_time
+
+        self.real_start_time = None
+        self.real_end_time = None
+
         self.state = ScheduleItem.UNSTARTED
 
     @staticmethod
@@ -110,6 +114,11 @@ class ScheduleItem:
     #     return False
 
 class Schedule:
+
+    @staticmethod
+    def empty_schedule():
+        return Schedule({})
+
     def __init__(self, mapping):
         ## {
         ##   res1: (task1,start_time1, end_time1),(task2,start_time2, end_time2), ...
@@ -118,7 +127,7 @@ class Schedule:
         self.mapping = mapping##dict()
 
     def is_finished(self, task):
-        (node, item) = self.place(task)
+        (node, item) = self.place(task.id)
         if item is None:
             return False
         return item.state == ScheduleItem.FINISHED
@@ -134,10 +143,10 @@ class Schedule:
                         return None
         return None
 
-    def place(self, task):
+    def place(self, id):
         for (node, items) in self.mapping.items():
             for item in items:
-                if item.job.id == task.id:
+                if item.job.id == id:
                     return (node,item)
         return None
 
@@ -181,8 +190,13 @@ class Schedule:
 
 
     def change_state(self, task, state):
-        (node, item) = self.place(task)
+        (node, item) = self.place(task.id)
         item.state = state
+
+    def change_state_byId(self, id, state):
+        (node, item) = self.place(id)
+        item.state = state
+
 
     # def get_all_unique_tasks_id(self):
     #     ids = set(item.job.id for (node, items) in self.mapping.items() for item in items)
@@ -264,6 +278,54 @@ class Schedule:
 
     def get_the_most_upcoming_item(self, time):
         pass
+
+    def finished_node_item_pairs(self):
+        finished_items = [(node, item) for node, items in self.mapping.items()
+                          for item in items if item.state == ScheduleItem.FINISHED]
+        return finished_items
+
+    def executing_node_item_pairs(self):
+        items = [(node, item) for node, items in self.mapping.items()
+                          for item in items if item.state == ScheduleItem.EXECUTING]
+        return items
+
+    def unstarted_node_item_pairs(self):
+        items = [(node, item) for node, items in self.mapping.items()
+                          for item in items if item.state == ScheduleItem.UNSTARTED]
+        return items
+
+    # """
+    # :return list of tasks which is ready to be executed
+    # """
+    # def ready_to_run_tasks(self, workflow):
+    #     finished_tasks = self.finished_tasks()
+    #     executing_tasks = self.executing_tasks()
+    #     ready_to_run_tasks = workflow.ready_to_run_tasks(finished_tasks, executing_tasks)
+    #     return ready_to_run_tasks
+
+    def next_to_run(self, workflow):
+        # next_to_run
+        # all dependecies - predeseccors tasks - are finished
+        # all needed data(explicitly controlled) are on node
+        # chosen node are free of other workload (e.g. tasks)
+        unstarted_items = self.unstarted_node_item_pairs()
+        finished_items = self.finished_node_item_pairs()
+
+        finished_tasks_map = set(item.job.id for node, item in finished_items)
+        finished_tasks_map.add(workflow.head_task.id)
+
+
+        # check parents
+        resolved_dependencies = [(node, item) for node, item in unstarted_items
+                                 if all([ ptask.id in finished_tasks_map for ptask in item.job.parents])]
+
+        # check data dependencies
+        # TODO: later
+
+        ## checking of node availability is left for an external entity
+        schedule_pairs = resolved_dependencies
+
+        return schedule_pairs
 
     def __str__(self):
         return str(self.mapping)

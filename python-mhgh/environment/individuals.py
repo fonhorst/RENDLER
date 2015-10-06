@@ -20,14 +20,14 @@ class FitnessStd(Fitness):
 ## we cannot create uid property through creator.create due to its internal algorithm
 class DictBasedIndividual(dict):
     def __init__(self, *args, **kwargs):
-        super(self, DictBasedIndividual).__init__(*args, **kwargs)
+        super(DictBasedIndividual, self).__init__(*args, **kwargs)
         self.uid = uuid4()
     pass
 
 
 class ListBasedIndividual(list):
     def __init__(self, *args, **kwargs):
-        super(self, ListBasedIndividual).__init__(*args, **kwargs)
+        super(ListBasedIndividual, self).__init__(*args, **kwargs)
         self.uid = uuid4()
     pass
 

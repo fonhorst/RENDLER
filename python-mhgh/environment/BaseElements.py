@@ -54,7 +54,7 @@ class Resource(JsonSerializable):
         if isinstance(other, Resource) and self.name == other.name:
             return True
         else:
-            return super(self, Resource).__eq__(other)
+            return False
 
     def __hash__(self):
         return hash(self.name)
@@ -85,7 +85,7 @@ class Node(JsonSerializable):
         if isinstance(other, Node) and self.name == other.name:
             return True
         else:
-            return super(self, Node).__eq__(other)
+            return False
 
     def __hash__(self):
         return hash(self.name)

@@ -15,7 +15,7 @@ and vice versa
 
 class Particle(FitAdapter):
     def __init__(self, *args, **kwargs):
-        super(self, Particle).__init__(*args, **kwargs)
+        super(Particle, self).__init__(*args, **kwargs)
         self.uid = uuid4()
         self._velocity = None
         self._best = None
@@ -35,7 +35,7 @@ class Particle(FitAdapter):
 class MappingParticle(Particle):
 
     def __init__(self, mapping):
-        super(self, MappingParticle).__init__(mapping)
+        super(MappingParticle, self).__init__(mapping)
         self.velocity = MappingParticle.Velocity({})
     pass
 
@@ -97,7 +97,7 @@ class OrderingParticle(Particle):
             task_id: value
         }
         """
-        super(self, OrderingParticle).__init__(ordering)
+        super(OrderingParticle, self).__init__(ordering)
         pass
 
     def __sub__(self, other):
@@ -161,7 +161,7 @@ class OrderingParticle(Particle):
 
 class CompoundParticle(Particle):
     def __init__(self, mapping_particle, ordering_particle):
-        super(self, CompoundParticle).__init__(None)
+        super(CompoundParticle, self).__init__(None)
         self.mapping = mapping_particle
         self.ordering = ordering_particle
         self._best = None

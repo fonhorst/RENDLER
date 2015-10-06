@@ -227,7 +227,7 @@ class FreeSlotIterator:
     def __iter__(self):
         return self
 
-    def __next__(self):
+    def next(self):
         if self.current < self.size:
             i = self.current
             while i < self.size:

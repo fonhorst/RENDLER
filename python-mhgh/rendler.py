@@ -21,6 +21,12 @@ import task_state
 import utils
 import messages
 from environment import Utility
+from environment.ResourceManager import ScheduleItem, Schedule
+from environment.ExperimentalResourceManager import ExperimentResourceManager
+from environment.ExperimentalEstimator import TransferCalcExperimentEstimator
+from environment.DSimpleHeft import run_heft
+from environment.BaseElements import Resource
+
 
 TASK_CPUS = 0.1
 TASK_MEM = 32
@@ -30,16 +36,34 @@ TASK_ATTEMPTS = 5  # how many times a task is attempted
 
 TEST_TASK_SUFFIX = "-test"
 
+from environment.BaseElements import Node, SoftItem
 
 class ResourceInfo:
+
+    BUSY = "busy"
+    FREE = "free"
+
     def __init__(self, executor_id, slave_id):
         self.executor_id = executor_id
         self.slave_id = slave_id
+        self.name = self.executor_id
 
         self.eId = mesos_pb2.ExecutorID()
         self.eId.value = self.executor_id
         self.sId = mesos_pb2.SlaveID()
         self.sId.value = self.slave_id
+
+        self.state = ResourceInfo.FREE
+
+    """
+    :return Node instance
+    """
+    def construct_node_desc(self):
+        # here should some kind real flops value
+        # resource should be set later
+        node = Node(self.name, None, [SoftItem.ANY_SOFT], flops=1)
+        return node
+
     """
     :driver MesosSchedulerDriver
     """
@@ -57,6 +81,12 @@ class ResourceInfo:
 
     def askExecutor_StartStageIn(self, driver, task_as_str):
         raise NotImplementedError()
+
+    def change_state(self, new_state):
+        self.state = new_state
+
+    def is_free(self):
+        return self.state == ResourceInfo.FREE
 # See the Mesos Framework Development Guide:
 # http://mesos.apache.org/documentation/latest/app-framework-development-guide
 
@@ -84,8 +114,7 @@ class TestScheduler(Scheduler):
 
         logger.info("Wf job count %s" % self.workflow.get_task_count())
 
-        self.finished_tasks = set([self.workflow.head_task.id])
-        self.running_tasks = set()
+        self.current_schedule = Schedule.empty_schedule()
 
     def setDriver(self, driver):
         self._driver = driver
@@ -109,14 +138,20 @@ class TestScheduler(Scheduler):
                     pass
                 elif self._is_pool_formed():
                     logger.info("Pool has been formed")
+
+                    self.construct_scheduling_tools()
+
                     pool_has_been_formed = True
                     pass
 
                 # -1 - we don't need to account a head_task
-                logger.info("Tasks running %s " % (len(self.running_tasks)))
-                logger.info("Tasks finished %s/%s " % (len(self.finished_tasks) - 1, self.workflow.get_task_count()))
+                finished_tasks = len(self.current_schedule.finished_node_item_pairs())
+                executing_tasks = len(self.current_schedule.executing_node_item_pairs())
+                logger.info("Tasks running %s " % (executing_tasks))
+                logger.info("Tasks finished %s/%s " % (finished_tasks,
+                                                       self.workflow.get_task_count()))
 
-                if self.workflow.get_task_count() == len(self.finished_tasks) - 1:
+                if self.workflow.get_task_count() == finished_tasks:
                     logger.info("Workload completed. Shutting down...")
                     hard_shutdown()
 
@@ -185,13 +220,18 @@ class TestScheduler(Scheduler):
             rinfo = self.active_resources[executorId.value]
 
             finished_task_id = messages.message_body(message)['id']
-            self.finished_tasks.add(finished_task_id )
-            tasks = self.workflow.ready_to_run_tasks(self.finished_tasks, self.running_tasks)
-            self.running_tasks.remove(finished_task_id)
-            if len(tasks) > 0:
-                task = tasks[0]
-                rinfo.askExecutor_RunTask(driver, task)
-                self.running_tasks.add(task.id)
+
+            self.current_schedule.change_state_byId(finished_task_id, ScheduleItem.FINISHED)
+            rinfo.change_state(ResourceInfo.FREE)
+
+            self.run_next_tasks(driver)
+
+            # tasks = self.workflow.ready_to_run_tasks(self.finished_tasks, self.running_tasks)
+            # self.running_tasks.remove(finished_task_id)
+            # if len(tasks) > 0:
+            #     task = tasks[0]
+            #     rinfo.askExecutor_RunTask(driver, task)
+            #     self.running_tasks.add(task.id)
 
 
     """
@@ -223,16 +263,71 @@ class TestScheduler(Scheduler):
         pass
 
     def start_execution_process(self, driver):
-        tasks = deque(self.workflow.ready_to_run_tasks(self.finished_tasks, self.running_tasks))
-        logger.info("Ready to run tasks %s" % (tasks))
-        if len(tasks) == 0:
-            return
-        for executor_Id, rinfo in self.active_resources.items():
-            task = tasks.popleft()
-            rinfo.askExecutor_RunTask(driver, task)
-            self.running_tasks.add(task.id)
+
+        # make scheduling
+        logger.info("Building Schedule")
+        heft_schedule = run_heft(self.workflow, self.rm, self.estimator)
+        Utility.Utility.validate_static_schedule(self.workflow, heft_schedule)
+        logger.info("HEFT makespan: " + str(Utility.Utility.makespan(heft_schedule)))
+
+        self.current_schedule = heft_schedule
+        self.run_next_tasks(driver)
 
     pass
+
+    def run_next_tasks(self, driver):
+        # in this case, this funcion will return only first level tasks
+        # a task can be started if:
+        # 1) all dependecies - predeseccors tasks - are finished
+        # 2) all needed data(explicitly controlled) are on the node
+        # 3) the chosen node are free of other workload (e.g. tasks)
+
+        # check all dependencies
+        schedule_pairs = self.current_schedule.next_to_run(self.workflow)
+
+        # check data dependecies
+        # TODO:
+
+        ready_to_run_pairs = schedule_pairs
+
+        # check availability of nodes
+        # ready_to_run_pairs = [(node, item) for (node, item) in schedule_pairs
+        #                       if self.active_resources[node.name].is_free()]
+
+        logger.info("Run tasks: %s" % [item.job.id for node, item in ready_to_run_pairs])
+        for node, item in ready_to_run_pairs:
+            if not self.active_resources[node.name].is_free():
+                continue
+            rinfo = self.active_resources[node.name]
+            task = item.job
+            rinfo.askExecutor_RunTask(driver, task)
+
+            self.current_schedule.change_state(item.job, ScheduleItem.EXECUTING)
+            rinfo.change_state(ResourceInfo.BUSY)
+        pass
+
+
+    """
+    Builds rsource manager and estimator to be needed for scheduling
+    """
+    def construct_scheduling_tools(self):
+
+        nodes = [rinfo.construct_node_desc() for executor_id, rinfo in self.active_resources.items()]
+
+        resources = [Resource(node.name, nodes=[node]) for node in nodes]
+
+        rm = ExperimentResourceManager(resources)
+        estimator = TransferCalcExperimentEstimator(ideal_flops=1,
+                                                    reliability=1.0,
+                                                    transfer_nodes=1,
+                                                    transfer_blades=100)
+
+        self.rm = rm
+        self.estimator = estimator
+
+        return rm, estimator
+
+        pass
 
 
 def hard_shutdown():
@@ -285,7 +380,6 @@ if __name__ == "__main__":
     framework.name = "TestScheduler"
     framework.hostname = "192.168.92.5"
 
-
     rendler = TestScheduler(testExecutor)
 
     driver = MesosSchedulerDriver(rendler, framework, mesosMasterUrl)
@@ -296,7 +390,7 @@ if __name__ == "__main__":
         status = 0 if driver.run() == mesos_pb2.DRIVER_STOPPED else 1
         driver.stop()
         sys.exit(status)
-    framework_thread = Thread(target = run_driver_async, args = ())
+    framework_thread = Thread(target=run_driver_async, args = ())
     framework_thread.start()
 
     print "(Listening for Ctrl-C)"
