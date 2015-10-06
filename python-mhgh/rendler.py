@@ -78,7 +78,7 @@ class TestScheduler(Scheduler):
         self._driver = None
 
 
-        self.workflow = Utility.Utility.readWorkflow("Montage_5_reduced_runtime.xml",
+        self.workflow = Utility.Utility.readWorkflow("Montage_25.xml",
                                                      "Workflow", "00",
                                                      deadline=1000, is_head=True)
 
