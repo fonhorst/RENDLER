@@ -135,7 +135,11 @@ class TestScheduler(Scheduler):
         self._driver = None
 
 
-        self.workflow = Utility.Utility.readWorkflow("swanbsm20.xml",
+        self.workflow = Utility.Utility.readWorkflow("swanbsm10.xml",
+                                                     "Workflow", "00",
+                                                     deadline=1000, is_head=True)
+
+        self.workflow_2 = Utility.Utility.readWorkflow("swanbsm5.xml",
                                                      "Workflow", "00",
                                                      deadline=1000, is_head=True)
 
@@ -170,7 +174,7 @@ class TestScheduler(Scheduler):
                     if execution_process_started:
                         # special service function
                         # whose goal is to simulate a situation of lost nodes
-                        #self.check_for_nodes_fault()
+                        self.check_for_nodes_fault()
                         pass
 
                     pass
@@ -420,12 +424,13 @@ class TestScheduler(Scheduler):
         finished_task_count = len(self.current_schedule.finished_node_item_pairs())
         all_task_count  = len(self.workflow.get_all_unique_tasks())
         # if finished_task_count >= all_task_count*0.5:
-        if finished_task_count >= 1 and not self.fail_has_been_generated:
+        if finished_task_count >= (all_task_count * 0.75) and not self.fail_has_been_generated:
             logger.info("Tring to kill")
             self.fail_has_been_generated = True
             resources = list(sorted(self.active_resources.keys()))
             # resources_to_be_killed = resources[:int(len(resources)/2)]
-            resources_to_be_killed = [resources[0]]
+            resources_to_be_killed = resources[:6]
+            # resources_to_be_killed = [resources[0]]
             for executor_id in resources_to_be_killed:
                 rinfo = self.active_resources[executor_id]
                 rinfo.killExecutor(driver)
@@ -462,6 +467,9 @@ class TestScheduler(Scheduler):
             clean_schedule = Schedule(new_mapping)
 
             logger.info("Clean schedule: %s" % clean_schedule)
+
+            ## replace current with reduced one (workflow-2) to save time
+            # self.workflow = self.workflow_2
 
             # resume execution process
             heft_schedule = run_heft(self.workflow, self.rm, self.estimator, fixed_schedule=clean_schedule)
