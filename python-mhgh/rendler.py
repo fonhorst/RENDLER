@@ -424,7 +424,7 @@ class TestScheduler(Scheduler):
         finished_task_count = len(self.current_schedule.finished_node_item_pairs())
         all_task_count  = len(self.workflow.get_all_unique_tasks())
         # if finished_task_count >= all_task_count*0.5:
-        if finished_task_count >= (all_task_count * 0.75) and not self.fail_has_been_generated:
+        if finished_task_count >= (all_task_count * 0.5) and not self.fail_has_been_generated:
             logger.info("Tring to kill")
             self.fail_has_been_generated = True
             resources = list(sorted(self.active_resources.keys()))
@@ -471,8 +471,113 @@ class TestScheduler(Scheduler):
             ## replace current with reduced one (workflow-2) to save time
             # self.workflow = self.workflow_2
 
+            # minimal quality
+            executed_or_executing_bsms = []
+            # second_level
+            executed_swans = []
+            # third level
+            executing_swans = []
+            # forth level
+            not_started_swans = []
+            for (node, items) in clean_schedule.mapping.items():
+                for item in items:
+                    soft = list(item.job.soft_reqs)
+                    if len(soft) > 0 and soft[0] == "bsm":
+                        if item.state == ScheduleItem.FINISHED or item.state == ScheduleItem.EXECUTING:
+                            executed_or_executing_bsms.append(item)
+                    if len(soft) > 0 and soft[0] == "swan":
+                        if item.state == ScheduleItem.FINISHED:
+                            executed_swans.append(item)
+                        if item.state == ScheduleItem.EXECUTING:
+                            executing_swans.append(item)
+                        if item.state == ScheduleItem.FAILED or item.state == ScheduleItem.UNSTARTED:
+                            not_started_swans.append(item)
+                pass
+
+            def find_swan(item):
+                 for p in item.job.parents:
+                    soft = list(p.soft_reqs)
+                    if len(soft) > 0 and soft[0] == "swan":
+                        return p
+
+            def find_bsm(item):
+                for p in item.job.children:
+                    soft = list(p.soft_reqs)
+                    if len(soft) > 0 and soft[0] == "bsm":
+                        return p
+
+
+            # get pairs of minimum available quality
+            min_saved_swan = {}
+            min_saved_bsm = {}
+            for item in executed_or_executing_bsms:
+                p = find_swan(item)
+                min_saved_swan[p.id] = p
+                min_saved_bsm[item.job.id] = item.job
+
+            # get second level
+            second_level_swan = {}
+            second_level_bsm = {}
+            for item in executed_swans:
+                if item.job.id not in min_saved_swan:
+                    c = find_bsm(item)
+                    # it's already executed
+                    #second_level_swan[item.job.id] = item.job
+                    second_level_bsm[c.id] = c
+
+            # get third level
+            third_level_swan = {}
+            third_level_bsm = {}
+            for item in executing_swans:
+                c = find_bsm(item)
+                # it's already executing
+                #third_level_swan[item.job.id] = item.job
+                third_level_bsm[c.id] = c
+
+            # get forth level
+            forth_level_swan = {}
+            forth_level_bsm = {}
+            for item in not_started_swans:
+                c = find_bsm(item)
+                forth_level_swan[item.job.id] = item.job
+                forth_level_bsm[c.id] = c
+
+
+            ## only first level stays
+            # not_calculated_bsm = list(second_level_bsm.keys()) + list(third_level_bsm.keys()) + list(forth_level_bsm.keys())
+            # not_calculated_swan = list(second_level_swan.keys()) + list(third_level_swan.keys()) + list(forth_level_swan.keys())
+
+            ## first and second
+            not_calculated_bsm = list(third_level_bsm.keys()) + list(forth_level_bsm.keys())
+            not_calculated_swan = list(third_level_swan.keys()) + list(forth_level_swan.keys())
+
+            ## first, second and third
+            #not_calculated_bsm = list(forth_level_bsm.keys())
+            #not_calculated_swan = list(forth_level_swan.keys())
+
+
+            # for id in not_calculated_bsm:
+            #     task = self.workflow.byId(id)
+            #     task.runtime = 0
+            #
+            # for id in not_calculated_swan:
+            #     task = self.workflow.byId(id)
+            #     task.runtime = 0
+
+
             # resume execution process
             heft_schedule = run_heft(self.workflow, self.rm, self.estimator, fixed_schedule=clean_schedule)
+
+            ## make it finished
+            for id in not_calculated_bsm:
+                node, item = heft_schedule.place_non_failed(id)
+                item.state = ScheduleItem.FINISHED
+
+            for id in not_calculated_swan:
+                node, item = heft_schedule.place_non_failed(id)
+                item.state = ScheduleItem.FINISHED
+
+            logger.info("NOT_CALCULATED_BSM: %s" % len(not_calculated_bsm))
 
             logger.info("New Heft Schedule: %s" % heft_schedule)
 

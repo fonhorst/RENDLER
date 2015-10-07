@@ -1,7 +1,7 @@
 from environment import Utility
 
 if __name__ == "__main__":
-     workflow = Utility.Utility.readWorkflow("Montage_5.xml",
+     workflow = Utility.Utility.readWorkflow("swanbsm10.xml",
                                                      "Workflow", "00",
                                                      deadline=1000, is_head=True)
 
