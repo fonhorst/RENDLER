@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="bdd4f53b-7ba9-4544-b84b-c0b00e6ef665" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python-mhgh/asas.py" afterPath="$PROJECT_DIR$/python-mhgh/asas.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python-mhgh/visscripts/ch4_exp_vis.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python-mhgh/rendler.py" afterPath="$PROJECT_DIR$/python-mhgh/rendler.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="RENDLER.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -30,101 +31,11 @@
       <file leaf-file-name="rendler.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/python-mhgh/rendler.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.3873582" vertical-offset="7105" max-vertical-offset="11339">
-              <caret line="432" column="53" selection-start-line="432" selection-start-column="53" selection-end-line="432" selection-end-column="53" />
+            <state vertical-scroll-proportion="0.123176664" vertical-offset="7387" max-vertical-offset="12546">
+              <caret line="439" column="20" selection-start-line="439" selection-start-column="20" selection-end-line="439" selection-end-column="20" />
               <folding>
                 <element signature="e#22#51#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="[2015-10-07_02-03-1444183436]_scheduler.log" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-07_02-03-1444183436]_scheduler.log">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-6.7586207" vertical-offset="5006" max-vertical-offset="8449">
-              <caret line="306" column="61" selection-start-line="306" selection-start-column="58" selection-end-line="306" selection-end-column="61" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="[2015-10-07_01-58-1444183111]_scheduler.log" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-07_01-58-1444183111]_scheduler.log">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-6.7586207" vertical-offset="7080" max-vertical-offset="11679">
-              <caret line="428" column="61" selection-start-line="428" selection-start-column="58" selection-end-line="428" selection-end-column="61" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="[2015-10-07_01-55-1444182927]_scheduler.log" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-07_01-55-1444182927]_scheduler.log">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-6.7586207" vertical-offset="8474" max-vertical-offset="10676">
-              <caret line="510" column="61" selection-start-line="510" selection-start-column="58" selection-end-line="510" selection-end-column="61" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="[2015-10-07_01-51-1444182708]_scheduler.log" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-07_01-51-1444182708]_scheduler.log">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-6.7586207" vertical-offset="8457" max-vertical-offset="10591">
-              <caret line="509" column="61" selection-start-line="509" selection-start-column="58" selection-end-line="509" selection-end-column="61" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="[2015-10-07_01-48-1444182502]_scheduler.log" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-07_01-48-1444182502]_scheduler.log">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-6.7586207" vertical-offset="7080" max-vertical-offset="10642">
-              <caret line="428" column="61" selection-start-line="428" selection-start-column="58" selection-end-line="428" selection-end-column="61" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="[2015-10-07_01-44-1444182266]_scheduler.log" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-07_01-44-1444182266]_scheduler.log">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-6.7586207" vertical-offset="4955" max-vertical-offset="8653">
-              <caret line="303" column="61" selection-start-line="303" selection-start-column="58" selection-end-line="303" selection-end-column="61" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="[2015-10-07_01-40-1444182041]_scheduler.log" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-07_01-40-1444182041]_scheduler.log">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-6.7586207" vertical-offset="5006" max-vertical-offset="8500">
-              <caret line="306" column="61" selection-start-line="306" selection-start-column="58" selection-end-line="306" selection-end-column="61" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="[2015-10-07_01-38-1444181881]_scheduler.log" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-07_01-38-1444181881]_scheduler.log">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-6.7586207" vertical-offset="6723" max-vertical-offset="9010">
-              <caret line="407" column="61" selection-start-line="407" selection-start-column="58" selection-end-line="407" selection-end-column="61" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="[2015-10-07_01-34-1444181691]_scheduler.log" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-07_01-34-1444181691]_scheduler.log">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-6.7586207" vertical-offset="8338" max-vertical-offset="10319">
-              <caret line="502" column="61" selection-start-line="502" selection-start-column="58" selection-end-line="502" selection-end-column="61" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -173,6 +84,10 @@
         <option value="$PROJECT_DIR$/python-mhgh/environment/ExperimentalEstimator.py" />
         <option value="$PROJECT_DIR$/python-mhgh/asas.py" />
         <option value="$PROJECT_DIR$/python-mhgh/[2015-10-07_01-48-1444182502]_scheduler.log" />
+        <option value="$PROJECT_DIR$/python-mhgh/[2015-10-07_08-19-1444205981]_scheduler.log" />
+        <option value="$PROJECT_DIR$/python-mhgh/[2015-10-07_17-15-1444238143]_scheduler.log" />
+        <option value="$PROJECT_DIR$/python-mhgh/visscripts/ch4_exp_vis.py" />
+        <option value="$PROJECT_DIR$/python-mhgh/[2015-10-08_07-59-1444291146]_scheduler_[9-3,75,lvl2].log" />
         <option value="$PROJECT_DIR$/python-mhgh/rendler.py" />
       </list>
     </option>
@@ -257,7 +172,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="environment" />
+              <option name="myItemId" value="visscripts" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -286,7 +201,7 @@
       <recent name="D:\wspace\RENDLER\python-mhgh\environment" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.asas">
+  <component name="RunManager" selected="Python.ch4_exp_vis">
     <configuration default="false" name="rendler" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -342,6 +257,27 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <RunnerSettings RunnerId="PyDebugRunner" />
       <ConfigurationWrapper RunnerId="PyDebugRunner" />
+      <method />
+    </configuration>
+    <configuration default="false" name="ch4_exp_vis" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python-mhgh/visscripts" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="RENDLER" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python-mhgh/visscripts/ch4_exp_vis.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <RunnerSettings RunnerId="PyDebugRunner" />
+      <RunnerSettings RunnerId="PythonRunner" />
+      <ConfigurationWrapper RunnerId="PyDebugRunner" />
+      <ConfigurationWrapper RunnerId="PythonRunner" />
       <method />
     </configuration>
     <configuration default="true" type="BashConfigurationType" factoryName="Bash">
@@ -477,16 +413,18 @@
       <option name="USE_PARAM" value="false" />
       <method />
     </configuration>
-    <list size="3">
+    <list size="4">
       <item index="0" class="java.lang.String" itemvalue="Python.rendler" />
       <item index="1" class="java.lang.String" itemvalue="Python.tests" />
       <item index="2" class="java.lang.String" itemvalue="Python.asas" />
+      <item index="3" class="java.lang.String" itemvalue="Python.ch4_exp_vis" />
     </list>
     <recent_temporary>
-      <list size="3">
-        <item index="0" class="java.lang.String" itemvalue="Python.asas" />
-        <item index="1" class="java.lang.String" itemvalue="Python.tests" />
-        <item index="2" class="java.lang.String" itemvalue="Python.rendler" />
+      <list size="4">
+        <item index="0" class="java.lang.String" itemvalue="Python.ch4_exp_vis" />
+        <item index="1" class="java.lang.String" itemvalue="Python.asas" />
+        <item index="2" class="java.lang.String" itemvalue="Python.tests" />
+        <item index="3" class="java.lang.String" itemvalue="Python.rendler" />
       </list>
     </recent_temporary>
   </component>
@@ -502,7 +440,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
@@ -512,8 +450,8 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.21579532" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32925472" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25266525" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2750533" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25053304" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.27878466" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.26807564" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24973656" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
@@ -548,158 +486,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/python-mhgh/environment/utilities.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1802">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/environment/NewSchedulerBuilder.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4403">
-          <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#25#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/environment/mapordschedule.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1921">
-          <caret line="4" column="5" selection-start-line="4" selection-start-column="5" selection-end-line="4" selection-end-column="5" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.PyCharm40/system/python_stubs/56986708/_collections.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1616" max-vertical-offset="3757">
-          <caret line="106" column="8" selection-start-line="106" selection-start-column="8" selection-end-line="106" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="680">
-          <caret line="4" column="23" selection-start-line="4" selection-start-column="23" selection-end-line="4" selection-end-column="38" />
-          <folding>
-            <element signature="e#0#15#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/Montage_5_reduced_runtime.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="765">
-          <caret line="14" column="142" selection-start-line="14" selection-start-column="142" selection-end-line="14" selection-end-column="142" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/environment/BladeResourceGenrator.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.70689654" vertical-offset="109" max-vertical-offset="3400">
-          <caret line="4" column="23" selection-start-line="4" selection-start-column="23" selection-end-line="4" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/environment/DeadlineHeft.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="540" max-vertical-offset="1173">
-          <caret line="51" column="4" selection-start-line="51" selection-start-column="4" selection-end-line="51" selection-end-column="4" />
-          <folding>
-            <element signature="e#0#33#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/activity_imitator.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="272">
-          <caret line="8" column="32" selection-start-line="8" selection-start-column="32" selection-end-line="8" selection-end-column="32" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python/render_executor.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="341" max-vertical-offset="1989">
-          <caret line="37" column="8" selection-start-line="37" selection-start-column="8" selection-end-line="37" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/environment/individuals.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="154" max-vertical-offset="782">
-          <caret line="22" column="8" selection-start-line="22" selection-start-column="8" selection-end-line="22" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/environment/simple_heft.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1956" max-vertical-offset="2805">
-          <caret line="145" column="43" selection-start-line="145" selection-start-column="43" selection-end-line="145" selection-end-column="43" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/environment/ScheduleBuilder.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="3588" max-vertical-offset="4454">
-          <caret line="239" column="0" selection-start-line="239" selection-start-column="0" selection-end-line="239" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#17#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.PyCharm40/system/python_stubs/56986708/datetime.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="3263" max-vertical-offset="10761">
-          <caret line="204" column="8" selection-start-line="204" selection-start-column="8" selection-end-line="204" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/tests.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="323">
-          <caret line="7" column="19" selection-start-line="7" selection-start-column="19" selection-end-line="7" selection-end-column="19" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.PyCharm40/system/python_stubs/56986708/thread.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="2561" max-vertical-offset="4913">
-          <caret line="163" column="8" selection-start-line="163" selection-start-column="8" selection-end-line="163" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Pro/Python27/Lib/threading.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1694" max-vertical-offset="22729">
-          <caret line="112" column="4" selection-start-line="112" selection-start-column="4" selection-end-line="112" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Pro/Python27/Lib/site-packages/mesos/interface/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1031" max-vertical-offset="6528">
-          <caret line="33" column="6" selection-start-line="33" selection-start-column="6" selection-end-line="33" selection-end-column="6" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/python-mhgh/messages.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="544">
@@ -760,9 +546,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="1104" max-vertical-offset="1734">
           <caret line="87" column="8" selection-start-line="87" selection-start-column="8" selection-end-line="87" selection-end-column="8" />
-          <folding>
-            <element signature="e#1#44#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -781,7 +565,7 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="68" max-vertical-offset="935">
           <caret line="24" column="31" selection-start-line="24" selection-start-column="31" selection-end-line="24" selection-end-column="31" />
           <folding>
-            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#0#11#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -818,14 +602,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-06_20-42-1444164140]_scheduler.log">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.7586207" vertical-offset="2150" max-vertical-offset="14722">
-          <caret line="138" column="62" selection-start-line="138" selection-start-column="58" selection-end-line="138" selection-end-column="62" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-06_18-51-1444157516]_scheduler.log">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="1032" max-vertical-offset="1853">
@@ -855,7 +631,7 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="2339" max-vertical-offset="4556">
           <caret line="150" column="8" selection-start-line="150" selection-start-column="8" selection-end-line="150" selection-end-column="8" />
           <folding>
-            <element signature="e#0#21#0" expanded="true" />
+            <element signature="e#0#21#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -868,106 +644,114 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-07_01-25-1444181129]_scheduler.log">
+    <entry file="file://C:/Pro/Python27/Lib/site-packages/matplotlib/pyplot.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.9310346" vertical-offset="4916" max-vertical-offset="8670">
-          <caret line="301" column="61" selection-start-line="301" selection-start-column="58" selection-end-line="301" selection-end-column="61" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="59003" max-vertical-offset="64328">
+          <caret line="3517" column="4" selection-start-line="3517" selection-start-column="4" selection-end-line="3517" selection-end-column="4" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-07_01-28-1444181307]_scheduler.log">
+    <entry file="file://C:/Pro/Python27/Lib/site-packages/matplotlib/axes/_axes.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.7586207" vertical-offset="7029" max-vertical-offset="9571">
-          <caret line="425" column="61" selection-start-line="425" selection-start-column="58" selection-end-line="425" selection-end-column="61" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="20644" max-vertical-offset="121652">
+          <caret line="1246" column="62" selection-start-line="1246" selection-start-column="62" selection-end-line="1246" selection-end-column="62" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-07_01-32-1444181531]_scheduler.log">
+    <entry file="file://$PROJECT_DIR$/python-mhgh/visscripts/ch4_exp_vis.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.7586207" vertical-offset="8321" max-vertical-offset="10302">
-          <caret line="501" column="61" selection-start-line="501" selection-start-column="58" selection-end-line="501" selection-end-column="61" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="952">
+          <caret line="12" column="52" selection-start-line="12" selection-start-column="52" selection-end-line="12" selection-end-column="52" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-07_01-34-1444181691]_scheduler.log">
+    <entry file="file://C:/Pro/Python27/Lib/ast.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.7586207" vertical-offset="8338" max-vertical-offset="10319">
-          <caret line="502" column="61" selection-start-line="502" selection-start-column="58" selection-end-line="502" selection-end-column="61" />
+        <state vertical-scroll-proportion="0.33333334" vertical-offset="4074" max-vertical-offset="5372">
+          <caret line="253" column="6" selection-start-line="253" selection-start-column="6" selection-end-line="253" selection-end-column="6" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-07_01-38-1444181881]_scheduler.log">
+    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-08_07-59-1444291146]_scheduler_[9-3,75,lvl2].log">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.7586207" vertical-offset="6723" max-vertical-offset="9010">
-          <caret line="407" column="61" selection-start-line="407" selection-start-column="58" selection-end-line="407" selection-end-column="61" />
+        <state vertical-scroll-proportion="20.275862" vertical-offset="12726" max-vertical-offset="16116">
+          <caret line="714" column="61" selection-start-line="714" selection-start-column="58" selection-end-line="714" selection-end-column="61" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-07_01-40-1444182041]_scheduler.log">
+    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-08_08-06-1444291608]_scheduler_[9-3,1,lvl2].log">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.7586207" vertical-offset="5006" max-vertical-offset="8500">
-          <caret line="306" column="61" selection-start-line="306" selection-start-column="58" selection-end-line="306" selection-end-column="61" />
+        <state vertical-scroll-proportion="472.72415" vertical-offset="17041" max-vertical-offset="17629">
+          <caret line="196" column="61" selection-start-line="196" selection-start-column="58" selection-end-line="196" selection-end-column="61" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-07_01-44-1444182266]_scheduler.log">
+    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-08_08-20-1444292447]_scheduler_[9-3,10,lvl2].log">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.7586207" vertical-offset="4955" max-vertical-offset="8653">
-          <caret line="303" column="61" selection-start-line="303" selection-start-column="58" selection-end-line="303" selection-end-column="61" />
+        <state vertical-scroll-proportion="426.4138" vertical-offset="16599" max-vertical-offset="17187">
+          <caret line="249" column="61" selection-start-line="249" selection-start-column="58" selection-end-line="249" selection-end-column="61" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-07_01-48-1444182502]_scheduler.log">
+    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-08_08-30-1444293050]_scheduler_[9-3,25,lvl2].log">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.7586207" vertical-offset="7080" max-vertical-offset="10642">
-          <caret line="428" column="61" selection-start-line="428" selection-start-column="58" selection-end-line="428" selection-end-column="61" />
+        <state vertical-scroll-proportion="368.3793" vertical-offset="16463" max-vertical-offset="17051">
+          <caret line="340" column="61" selection-start-line="340" selection-start-column="58" selection-end-line="340" selection-end-column="61" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-07_01-51-1444182708]_scheduler.log">
+    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-08_08-36-1444293374]_scheduler_[9-3,50,lvl2].log">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.7586207" vertical-offset="8457" max-vertical-offset="10591">
-          <caret line="509" column="61" selection-start-line="509" selection-start-column="58" selection-end-line="509" selection-end-column="61" />
+        <state vertical-scroll-proportion="259.34482" vertical-offset="16888" max-vertical-offset="17476">
+          <caret line="551" column="61" selection-start-line="551" selection-start-column="58" selection-end-line="551" selection-end-column="61" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-07_01-55-1444182927]_scheduler.log">
+    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-08_08-54-1444294458]_scheduler_[9-6,1,lvl2].log">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.7586207" vertical-offset="8474" max-vertical-offset="10676">
-          <caret line="510" column="61" selection-start-line="510" selection-start-column="58" selection-end-line="510" selection-end-column="61" />
+        <state vertical-scroll-proportion="379.51724" vertical-offset="14270" max-vertical-offset="14858">
+          <caret line="192" column="61" selection-start-line="192" selection-start-column="58" selection-end-line="192" selection-end-column="61" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-07_01-58-1444183111]_scheduler.log">
+    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-08_08-44-1444293853]_scheduler_[9-6,25,lvl2].log">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.7586207" vertical-offset="7080" max-vertical-offset="11679">
-          <caret line="428" column="61" selection-start-line="428" selection-start-column="58" selection-end-line="428" selection-end-column="61" />
+        <state vertical-scroll-proportion="-6.7586207" vertical-offset="5363" max-vertical-offset="14960">
+          <caret line="327" column="61" selection-start-line="327" selection-start-column="58" selection-end-line="327" selection-end-column="61" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-07_02-03-1444183436]_scheduler.log">
+    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-08_08-47-1444294069]_scheduler_[9-6,10,lvl2].log">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.7586207" vertical-offset="5006" max-vertical-offset="8449">
-          <caret line="306" column="61" selection-start-line="306" selection-start-column="58" selection-end-line="306" selection-end-column="61" />
+        <state vertical-scroll-proportion="-6.7586207" vertical-offset="4156" max-vertical-offset="14722">
+          <caret line="256" column="61" selection-start-line="256" selection-start-column="58" selection-end-line="256" selection-end-column="61" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python-mhgh/[2015-10-08_08-40-1444293638]_scheduler_[9-6,50,lvl2].log">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-9.3792515" vertical-offset="14797" max-vertical-offset="15385">
+          <caret line="546" column="61" selection-start-line="546" selection-start-column="58" selection-end-line="546" selection-end-column="61" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/python-mhgh/rendler.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3873582" vertical-offset="7105" max-vertical-offset="11339">
-          <caret line="432" column="53" selection-start-line="432" selection-start-column="53" selection-end-line="432" selection-end-column="53" />
+        <state vertical-scroll-proportion="0.123176664" vertical-offset="7387" max-vertical-offset="12546">
+          <caret line="439" column="20" selection-start-line="439" selection-start-column="20" selection-end-line="439" selection-end-column="20" />
           <folding>
             <element signature="e#22#51#0" expanded="true" />
           </folding>
