@@ -437,7 +437,7 @@ class TestScheduler(Scheduler):
         # bsm10 - 9 res - 1.14 min - deadline: 1.2 min
         # diff - [8, 20, 40, 60]
 
-        if diff >=75 and not self.fail_has_been_generated:
+        if diff >=10 and not self.fail_has_been_generated:
             logger.info("Tring to kill")
             self.fail_has_been_generated = True
             resources = list(sorted(self.active_resources.keys()))
@@ -487,7 +487,7 @@ class TestScheduler(Scheduler):
             # self.workflow = self.workflow_2
 
             st = time.time()
-            not_calculated_bsm, not_calculated_swan = self.wf_struct_opt(schedule=self.current_schedule, level=2)
+            not_calculated_bsm, not_calculated_swan = self.wf_struct_opt(schedule=self.current_schedule, level=-14)
             end = time.time()
             logger.info("TIME to adapt executio process: %s" % (end - st))
             # not_calculated_bsm, not_calculated_swan = [], []
@@ -519,7 +519,9 @@ class TestScheduler(Scheduler):
 
     def wf_struct_opt(self, schedule, level):
         # minimal quality
-        executed_or_executing_bsms = []
+        executed_bsms = []
+        # 1+ level
+        executing_bsms = []
         # second_level
         executed_swans = []
         # third level
@@ -530,8 +532,10 @@ class TestScheduler(Scheduler):
             for item in items:
                 soft = list(item.job.soft_reqs)
                 if len(soft) > 0 and soft[0] == "bsm":
-                    if item.state == ScheduleItem.FINISHED or item.state == ScheduleItem.EXECUTING:
-                        executed_or_executing_bsms.append(item)
+                    if item.state == ScheduleItem.FINISHED:
+                        executed_bsms.append(item)
+                    if item.state == ScheduleItem.EXECUTING:
+                        executing_bsms.append(item)
                 if len(soft) > 0 and soft[0] == "swan":
                     if item.state == ScheduleItem.FINISHED:
                         executed_swans.append(item)
@@ -541,7 +545,8 @@ class TestScheduler(Scheduler):
                         not_started_swans.append(item)
             pass
 
-        logger.info("Executed_or_executing_bsms - %s" % len(executed_or_executing_bsms))
+        logger.info("Executed bsms- %s" % len(executed_bsms))
+        logger.info("Executing bsms - %s" % len(executing_bsms))
         logger.info("Executed swans - %s" % len(executed_swans))
         logger.info("Executing swans - %s" % len(executing_swans))
         logger.info("Not started swans - %s" % len(not_started_swans))
@@ -562,29 +567,44 @@ class TestScheduler(Scheduler):
         # get pairs of minimum available quality
         min_saved_swan = {}
         min_saved_bsm = {}
-        for item in executed_or_executing_bsms:
+        for item in executed_bsms + executing_bsms:
             p = find_swan(item)
             min_saved_swan[p.id] = p
             min_saved_bsm[item.job.id] = item.job
 
+        first_level_swanbsm = []
+        for item in executed_bsms:
+            p = find_swan(item)
+            first_level_swanbsm.append((p, item.job))
+
+        first_level_swanbsm_extended = []
+        for item in executing_bsms:
+            p = find_swan(item)
+            first_level_swanbsm_extended.append((p, item.job))
+
         # get second level
         second_level_swan = {}
         second_level_bsm = {}
+        second_level_swanbsm = []
         for item in executed_swans:
             if item.job.id not in min_saved_swan:
                 c = find_bsm(item)
                 # it's already executed
                 #second_level_swan[item.job.id] = item.job
                 second_level_bsm[c.id] = c
+                second_level_swanbsm.append((item.job, c))
+
 
         # get third level
         third_level_swan = {}
         third_level_bsm = {}
+        third_level_swanbsm = []
         for item in executing_swans:
             c = find_bsm(item)
             # it's already executing
             #third_level_swan[item.job.id] = item.job
             third_level_bsm[c.id] = c
+            third_level_swanbsm.append((item.job, c))
 
         # get forth level
         forth_level_swan = {}
@@ -601,6 +621,36 @@ class TestScheduler(Scheduler):
 
         not_calculated_bsm = []
         not_calculated_swan = []
+
+        # use percent of desired swan-bsm pairs. It will determine execution time
+        if level < 0:
+            swanbsm_count = -1*level
+            swanbsm_pairs = first_level_swanbsm + first_level_swanbsm_extended + \
+                            second_level_swanbsm + third_level_swanbsm + forth_level_swanbsm
+            # if count of bsms that have been already calculated is bigger than we need
+            # than we will use it
+            swanbsm_count = len(first_level_swanbsm) if swanbsm_count < len(first_level_swanbsm) else swanbsm_count
+            desired_pairs = swanbsm_pairs[:swanbsm_count]
+
+            all_bsms = set(list(min_saved_bsm.keys()) + list(second_level_bsm.keys())
+                           + list(third_level_bsm.keys()) + list(forth_level_bsm.keys()))
+            all_swans = set(list(min_saved_swan.keys()) + list(second_level_swan.keys())
+                            + list(third_level_swan.keys()) + list(forth_level_swan.keys()))
+
+            desired_swans = [swan_task.id for swan_task, bsm_task in desired_pairs]
+            logger.info("ALL SWANS %s " % all_swans)
+            logger.info("DESIRED SWANS %s" % desired_swans)
+
+            for swan_task, bsm_task in desired_pairs:
+                all_bsms.remove(bsm_task.id)
+                res = self.current_schedule.place_non_failed(swan_task.id)
+                ## res is None == ScheduleItem.FAILED
+                if res is None or res[1].state == ScheduleItem.UNSTARTED:
+                    # all_swans doesn't contain executing or executed swans
+                    all_swans.remove(swan_task.id)
+
+            not_calculated_bsm = list(all_bsms)
+            not_calculated_swan = list(all_swans)
 
         ## only first level stays
         if level == 0:
@@ -639,11 +689,11 @@ class TestScheduler(Scheduler):
         if level == 2 :
             logger.info("forth_level_swanbsm %s " % len(forth_level_swanbsm))
 
-            # not_calculated_bsm = list(forth_level_bsm.keys())
-            # not_calculated_swan = list(forth_level_swan.keys())
+            not_calculated_bsm = list(forth_level_bsm.keys())
+            not_calculated_swan = list(forth_level_swan.keys())
             #
-            not_calculated_bsm = [bsm.id for swan, bsm in forth_level_swanbsm[:3]]
-            not_calculated_swan = [swan.id for swan, bsm in forth_level_swanbsm[:3]]
+            # not_calculated_bsm = [bsm.id for swan, bsm in forth_level_swanbsm[:3]]
+            # not_calculated_swan = [swan.id for swan, bsm in forth_level_swanbsm[:3]]
 
         if level == 3:
             not_calculated_swan = []

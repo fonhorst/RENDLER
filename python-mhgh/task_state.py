@@ -5,5 +5,6 @@ nameFor = {
 	2: "TASK_FINISHED", # TERMINAL.
 	3: "TASK_FAILED",   # TERMINAL.
 	4: "TASK_KILLED",   # TERMINAL.
-	5: "TASK_LOST"      # TERMINAL.
+	5: "TASK_LOST",      # TERMINAL.
+    7: "TASK_ERROR"
 }
